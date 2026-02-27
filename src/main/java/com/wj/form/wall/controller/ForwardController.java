@@ -1,4 +1,4 @@
-package com.wj.form_wall.controller;
+package com.wj.form.wall.controller;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

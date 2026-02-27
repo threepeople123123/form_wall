@@ -1,4 +1,4 @@
-package com.wj.form_wall.entity.request;
+package com.wj.form.wall.entity.request;
 
 import lombok.Data;
 
