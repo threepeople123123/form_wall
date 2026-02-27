@@ -1,6 +1,6 @@
 package com.wj.form.wall.controller;
 
-import com.wj.form.wall.result.R;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
