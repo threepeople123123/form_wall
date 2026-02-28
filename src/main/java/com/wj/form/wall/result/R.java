@@ -36,6 +36,14 @@ public class R<T> {
         return r;
     }
 
+    public static <T> R<T> ok(T data){
+        R<T> r = new R<>();
+        r.setData(data);
+        r.setCode(200);
+        r.setMessage("成功");
+        return r;
+    }
+
     public static <T> R<T> ok(T data,int code){
         R<T> r = new R<>();
         r.setData(data);
