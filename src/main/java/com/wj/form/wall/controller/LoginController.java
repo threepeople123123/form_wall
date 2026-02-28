@@ -44,7 +44,7 @@ public class LoginController {
         if (ObjectUtil.isEmpty(password) || password.length()<6){
             throw new FormWallException("密码不能为空，并且要大于等于6位数");
         }
-        if (StrUtil.isBlank(userName) || userName.length() <= 50){
+        if (StrUtil.isBlank(userName) || userName.length() >= 50){
             throw new FormWallException("用户名不能为空，并且要小于50字符");
         }
 

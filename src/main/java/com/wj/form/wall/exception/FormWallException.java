@@ -8,7 +8,7 @@ package com.wj.form.wall.exception;
  * @date 2026/2/27
  * @description 异常抛出统一类
  */
-public class FormWallException extends Throwable{
+public class FormWallException extends Exception{
 
     private String message;
 
