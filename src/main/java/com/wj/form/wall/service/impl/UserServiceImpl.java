@@ -33,7 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
     @Override
     public Long login(LoginRequest loginRequest, UserPojo userPojo) throws FormWallException {
         String password = userPojo.getPassword();
-        String md5Security = MySecurityUtil.md5Security(password);
+        String md5Security = MySecurityUtil.md5Security(loginRequest.getPassword());
         if (password.equals(md5Security)){
             return userPojo.getUserId();
         }
@@ -56,6 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
         userPojo.setPhone(loginRequest.getPhone());
         userPojo.setPassword(MySecurityUtil.md5Security(loginRequest.getPassword()));
         userPojo.setCreateTime(LocalDateTime.now());
+        userPojo.setUpdateTime(LocalDateTime.now());
         save(userPojo);
 
         return snowflakeNextId;

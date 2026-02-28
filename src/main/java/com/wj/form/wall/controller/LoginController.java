@@ -38,7 +38,7 @@ public class LoginController {
         String userName = loginRequest.getUserName();
         String deviceType = loginRequest.getDeviceType();
         // 校验参数是否合法
-        if (StrUtil.isBlank(phone) || !phone.matches("^1[3-9]\\d{8}$")){
+        if (StrUtil.isBlank(phone) || !phone.matches("^1[3-9]\\d{9}$")){
             throw new FormWallException("手机号不合法");
         }
         if (ObjectUtil.isEmpty(password) || password.length()<6){

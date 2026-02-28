@@ -23,7 +23,7 @@ spring:
         min-idle: 0
   datasource:
     # MySQL 连接 URL (核心配置)
-    url: jdbc:mysql://localhost:3306/form_wall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://8.140.219.233:3306/form_wall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     # 数据库用户名
     username: root
     # 数据库密码

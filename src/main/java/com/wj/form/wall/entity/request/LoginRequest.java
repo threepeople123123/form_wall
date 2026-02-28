@@ -15,16 +15,16 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    @Schema(name = "用户名",description = "用户名")
+    @Schema(name = "userName",description = "用户名")
     private String userName;
 
-    @Schema(name = "手机号",description = "手机号")
+    @Schema(name = "phone",description = "手机号")
     private String phone;
 
-    @Schema(name = "密码",description = "密码")
+    @Schema(name = "password",description = "密码")
     private String password;
 
-    @Schema(name = "设备类型",description = "设备类型")
+    @Schema(name = "deviceType",description = "设备类型")
     private String deviceType;
 
 }

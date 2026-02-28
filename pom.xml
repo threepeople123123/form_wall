@@ -83,7 +83,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.42</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -107,10 +106,16 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.38</version>
         </dependency>
+
+        <dependency>
+            <groupId>biz.paluch.redis</groupId>
+            <artifactId>lettuce</artifactId>
+            <version>3.5.0.Final</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <plugins>
+        <!--<plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -135,7 +140,7 @@
                     </excludes>
                 </configuration>
             </plugin>
-        </plugins>
+        </plugins>-->
     </build>
     <repositories>
         <repository>
