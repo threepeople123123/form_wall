@@ -38,10 +38,9 @@ public class UserUtil {
     }
 
 
-    public UserPojo setUser(String token,UserPojo userPojo) throws FormWallException {
+    public void setUser(String token,UserPojo userPojo) {
         userPojo.setPassword(null);
         redisTemplate.opsForHash().put(USER_KEY,token,JSONUtil.toJsonStr(userPojo));
-        throw new FormWallException("用户未登录");
     }
 
     public UserPojo getUser(HttpServletRequest request) throws FormWallException {

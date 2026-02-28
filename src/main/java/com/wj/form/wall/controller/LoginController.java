@@ -64,10 +64,6 @@ public class LoginController {
         // 塞入登录信息
         StpUtil.login(userId,deviceType);
 
-        // todo:测试，查询是否放在threadLocal中
-        new Thread(() ->{
-            String tokenValue = StpUtil.getTokenValue();
-        }).start();
         String tokenValue = StpUtil.getTokenValue();
 
         userUtil.setUser(tokenValue,userPojo);

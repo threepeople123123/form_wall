@@ -3,34 +3,32 @@ package com.wj.form.wall.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+import java.time.Duration;
 
 /**
- * RedisTemplate 配置类
- * 关键：1. 加 @Configuration 让 Spring 扫描到；2. 定义 RedisTemplate Bean 并注入 RedisConnectionFactory
+ * 整合 RedisConfig 和 RedisTemplateConfig，避免配置冲突
+ * 核心：不再硬编码 Redis 地址，而是复用 Spring Boot 自动装配的连接工厂
  */
-
-@Configuration // 必须加这个注解，否则 Spring 不会识别为配置类
+@Configuration
 public class RedisTemplateConfig {
 
-    // 定义 RedisTemplate Bean，泛型用 <String, Object>（适配大部分场景）
-    @Bean // 必须加 @Bean 注解，否则不会注册到 Spring 容器
+    // 核心：RedisTemplate 配置，使用自动装配的 RedisConnectionFactory（读取 yml 配置）
+    @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        // 注入 Spring Boot 自动创建的 RedisConnectionFactory（从 yml 配置读取参数）
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        // 配置序列化器（可选，但解决乱码问题，推荐加）
+        // 序列化配置（解决乱码问题）
         StringRedisSerializer stringSerializer = new StringRedisSerializer();
         GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer();
 
-        // key 和 hashKey 用 String 序列化
         redisTemplate.setKeySerializer(stringSerializer);
         redisTemplate.setHashKeySerializer(stringSerializer);
-        // value 和 hashValue 用 JSON 序列化
         redisTemplate.setValueSerializer(jsonSerializer);
         redisTemplate.setHashValueSerializer(jsonSerializer);
 
