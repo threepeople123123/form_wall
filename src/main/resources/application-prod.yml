@@ -1,35 +1,51 @@
 spring:
-  # redis配置
-  redis:
-    # Redis数据库索引（默认为0）
-    database: 1
-    # Redis服务器地址
-    host: 8.140.219.233
-    # Redis服务器连接端口
-    port: 6379
-    # Redis服务器连接密码（默认为空）
+  data:
+    # redis配置
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 1
+      # Redis服务器地址
+      host: 8.140.219.233
+      # Redis服务器连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      password: wangjian020426
+      # 连接超时时间
+      timeout: 10s
+      lettuce:
+        pool:
+          # 连接池最大连接数
+          max-active: 200
+          # 连接池最大阻塞等待时间（使用负值表示没有限制）
+          max-wait: -1ms
+          # 连接池中的最大空闲连接
+          max-idle: 10
+          # 连接池中的最小空闲连接
+          min-idle: 0
+  datasource:
+    # MySQL 连接 URL (核心配置)
+    url: jdbc:mysql://8.140.219.233:3306/form_wall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    # 数据库用户名
+    username: root
+    # 数据库密码
     password: wangjian020426
-    # 连接超时时间
-    timeout: 10s
-    lettuce:
-      pool:
-        # 连接池最大连接数
-        max-active: 200
-        # 连接池最大阻塞等待时间（使用负值表示没有限制）
-        max-wait: -1ms
-        # 连接池中的最大空闲连接
-        max-idle: 10
-        # 连接池中的最小空闲连接
-        min-idle: 0
-mysql:
-  url: jdbc:mysql://8.140.219.233:3306/form_wall?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&zeroDateTimeBehavior=convertToNull&transformedBitIsBoolean=true&allowMultiQueries=true&tinyInt1isBit=false&allowLoadLocalInfile=true&allowLocal
-  username: root
-  password: wangjian020426
-  driver-class-name: com.mysql.cj.jdbc.Driver
+    # 数据库驱动类名 (MySQL 8.x 用 com.mysql.cj.jdbc.Driver，5.x 用 com.mysql.jdbc.Driver)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 可选：连接池配置 (推荐使用 HikariCP，Spring Boot 默认)
+    hikari:
+      # 最小空闲连接数
+      minimum-idle: 5
+      # 最大连接数
+      maximum-pool-size: 20
+      # 连接超时时间（毫秒）
+      connection-timeout: 30000
+      # 连接最大存活时间（毫秒）
+      max-lifetime: 1800000
+
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
   # token 名称（同时也是 cookie 名称）
-  token-name: satoken
+  token-name: token
   # token 有效期（单位：秒） 默认30天，-1 代表永久有效
   timeout: 2592000
   # token 最低活跃频率（单位：秒），如果 token 超过此时间没有访问系统就会被冻结，默认-1 代表不限制，永不冻结
@@ -42,3 +58,8 @@ sa-token:
   token-style: uuid
   # 是否输出操作日志
   is-log: true
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
