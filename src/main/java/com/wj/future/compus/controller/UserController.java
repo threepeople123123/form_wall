@@ -2,6 +2,7 @@ package com.wj.future.compus.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import com.wj.future.compus.annotation.AuthIsLogin;
 import com.wj.future.compus.entity.pojo.UserPojo;
 import com.wj.future.compus.entity.response.UserinfoResponse;
 import com.wj.future.compus.exception.FormWallException;
@@ -46,6 +47,7 @@ public class UserController {
         return R.ok(userinfoResponse);
     }
 
+    @AuthIsLogin
     @PostMapping("/update")
     public R<String> update(){
 
