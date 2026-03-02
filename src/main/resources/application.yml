@@ -1,3 +1,7 @@
+server:
+  port: 8888
+  servlet:
+    context-path: /campus/help
 spring:
   application:
     name: form_wall

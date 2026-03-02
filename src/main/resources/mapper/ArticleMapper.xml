@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.wj.future.compus.mapper.ArticleMapper">
+
+    <resultMap id="articleResultMap" type="com.wj.future.compus.entity.pojo.ArticlePojo">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="viewRange" column="view_range"/>
+        <result property="sendUserName" column="send_user_name"/>
+        <result property="sendUserId" column="send_user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="schoolId" column="school_id"/>
+        <result property="schoolName" column="school_name"/>
+        <result property="photoUrl" column="photo_url"/>
+    </resultMap>
+
+    <select id="pageArticleList" resultMap="articleResultMap">
+        SELECT
+            t1.id,
+            t1.content,
+            t1.view_range,
+            t1.send_user_name,
+            t1.send_user_id,
+            t1.create_time,
+            t1.update_time,
+            t1.school_id,
+            t1.school_name,
+            t1.photo_url,
+            t1.title,
+            t1.like_count,
+            t1.heat
+        FROM
+            article t1
+                <if test="articleRequest.tag != null and articleRequest.tag.size() != 0">
+                    inner join
+                    article_tag_union t2 on t1.id = t2.article_id
+                </if>
+        <where>
+            <if test="articleRequest.viewRange == 1">
+                t1.view_range = #{articleRequest.viewRange}
+            </if>
+
+            <if test="articleRequest.schoolId != null and articleRequest.schoolId != ''">
+                t1.view_range_id = #{articleRequest.schoolId}
+            </if>
+
+            <if test="articleRequest.query != null and articleRequest.query != ''">
+                and
+                t1.title like #{articleRequest.query}
+                and
+                t1.content like #{articleRequest.query}
+            </if>
+
+            <if test="articleRequest.tag != null and articleRequest.tag.size() != 0">
+                and
+                t2.tag_id in
+                <foreach collection="articleRequest.tag" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+
+            </if>
+        </where>
+
+        ORDER BY t1.like_count ,t1.heat,t1.create_time
+            limit #{articleRequest.pageNum} ,#{articleRequest.pageSize}
+    </select>
+
+    <select id="pageArticleListCount" resultType="java.lang.Integer">
+        SELECT
+            count(1)
+        FROM
+        article t1
+        <if test="articleRequest.tag != null and articleRequest.tag.size() != 0">
+            inner join
+            article_tag_union t2 on t1.id = t2.article_id
+        </if>
+        <where>
+            <if test="articleRequest.viewRange == 1">
+                t1.view_range = #{articleRequest.viewRange}
+            </if>
+
+            <if test="articleRequest.schoolId != null and articleRequest.schoolId != ''">
+                t1.view_range_id = #{articleRequest.schoolId}
+            </if>
+
+            <if test="articleRequest.query != null and articleRequest.query != ''">
+                and
+                t1.title like #{articleRequest.query}
+                and
+                t1.content like #{articleRequest.query}
+            </if>
+
+            <if test="articleRequest.tag != null and articleRequest.tag.size() != 0">
+                and
+                t2.tag_id in
+                <foreach collection="articleRequest.tag" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.wj</groupId>
-    <artifactId>form_wall</artifactId>
+    <artifactId>futureCompus</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>form_wall</name>
-    <description>form_wall</description>
+    <description>未来校园项目</description>
     <url/>
     <licenses>
         <license/>
