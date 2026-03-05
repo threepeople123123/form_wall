@@ -73,7 +73,6 @@
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <version>3.5.15</version>
         </dependency>
-
         <!-- Source: https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-redis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

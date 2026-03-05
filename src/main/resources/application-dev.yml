@@ -1,4 +1,9 @@
 spring:
+  elasticsearch:
+    rest:
+      uris: http://192.168.0.103:9200
+      connection-timeout: 5s
+      read-timeout: 30s
   data:
     # redis配置
     redis:

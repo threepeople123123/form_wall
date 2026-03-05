@@ -99,13 +99,13 @@ public class ArticleController {
         int viewRange = articleRequest.getViewRange();
         String schoolId = articleRequest.getSchoolId();
         String schoolName = articleRequest.getSchoolName();
-        if (viewRange == 2){
-            if (StrUtil.isBlank(schoolName) || StrUtil.isBlank(schoolId)){
+        if (viewRange == 2) {
+            if (StrUtil.isBlank(schoolName) || StrUtil.isBlank(schoolId)) {
                 throw new FormWallException("请输入完整学校名称");
             }
         }
 
-        // todo:使用es查询
+        // 使用es查询
         Criteria criteria = new Criteria();
 
         criteria.and(new Criteria("title")).contains(articleRequest.getQuery());
