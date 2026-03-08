@@ -4,6 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wj.future.compus.annotation.AuthIsLogin;
 import com.wj.future.compus.entity.es.po.ArticleEsPojo;
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +51,7 @@ public class ArticleController {
     private ArticleService articleService;
 
     @Autowired
-    private ElasticsearchOperations elasticsearchOperations;
+    private ElasticsearchClient elasticsearchClient;
 
     @AuthIsLogin
     @PostMapping("/publish")
@@ -104,38 +108,88 @@ public class ArticleController {
                 throw new FormWallException("请输入完整学校名称");
             }
         }
+        try {
+            SearchResponse<ArticleEsPojo> esPojoSearchHits = elasticsearchClient.search(s -> s
+                            .index("article_index")
+                            .from(articleRequest.getPageNum() * articleRequest.getPageSize())
+                            .size(articleRequest.getPageSize())
 
-        // 使用es查询
-        Criteria criteria = new Criteria();
+                            .query(q -> q
+                                    .bool(b -> b
 
-        criteria.and(new Criteria("title")).contains(articleRequest.getQuery());
-        criteria.and(new Criteria("content")).contains(articleRequest.getQuery()); // 姓名包含"张"
-        criteria.and(new Criteria("schoolName").is(articleRequest.getSchoolName()));
-        criteria.and(new Criteria("schoolId").is(articleRequest.getSchoolId()));
-        criteria.and(new Criteria("viewRange").is(articleRequest.getViewRange()));
+                                            // should：title / content
+                                            .should(sh -> sh
+                                                    .match(m -> m
+                                                            .field("title")
+                                                            .query(articleRequest.getQuery())
+                                                    )
+                                            )
+                                            .should(sh -> sh
+                                                    .match(m -> m
+                                                            .field("content")
+                                                            .query(articleRequest.getQuery())
+                                                    )
+                                            )
 
-        Sort likeCountSort = Sort.by(Sort.Direction.DESC, "likeCount");
-        Sort heatSort = Sort.by(Sort.Direction.DESC, "heat");
-        Sort createTimeSort = Sort.by(Sort.Direction.DESC, "createTime");
+                                            // filter条件
+                                            .filter(f -> f
+                                                    .term(t -> t
+                                                            .field("schoolName")
+                                                            .value(articleRequest.getSchoolName())
+                                                    )
+                                            )
+                                            .filter(f -> f
+                                                    .term(t -> t
+                                                            .field("schoolId")
+                                                            .value(articleRequest.getSchoolId())
+                                                    )
+                                            )
+                                            .filter(f -> f
+                                                    .term(t -> t
+                                                            .field("viewRange")
+                                                            .value(articleRequest.getViewRange())
+                                                    )
+                                            )
+                                    )
+                            )
 
-        // 步骤2：构建Query对象
-        Query query = new CriteriaQuery(criteria);
-        query.addSort(createTimeSort);
-        query.addSort(likeCountSort);
-        query.addSort(heatSort);
-        // 分页：第0页，每页10条
-        query.setPageable(PageRequest.of(articleRequest.getPageNum(),articleRequest.getPageSize()));
-        SearchHits<ArticleEsPojo> esPojoSearchHits = elasticsearchOperations.search(query, ArticleEsPojo.class);
+                            // 排序
+                            .sort(sort -> sort
+                                    .field(f -> f
+                                            .field("createTime")
+                                            .order(SortOrder.Desc)
+                                    )
+                            )
+                            .sort(sort -> sort
+                                    .field(f -> f
+                                            .field("likeCount")
+                                            .order(SortOrder.Desc)
+                                    )
+                            )
+                            .sort(sort -> sort
+                                    .field(f -> f
+                                            .field("heat")
+                                            .order(SortOrder.Desc)
+                                    )
+                            )
 
-        List<ArticleResponse> articleResponses = null;
-        if (esPojoSearchHits.getTotalHits() > 0){
-            List<ArticleEsPojo> articleEsPojoList= esPojoSearchHits.stream().map(SearchHit::getContent).collect(Collectors.toList());
-            articleResponses = BeanUtil.copyToList(articleEsPojoList, ArticleResponse.class);
+                    , ArticleEsPojo.class
+            );
+            List<ArticleEsPojo> articleEsPojos = esPojoSearchHits.hits()
+                    .hits()
+                    .stream()
+                    .map(hit -> hit.source())
+                    .toList();
 
+
+            Page<ArticleResponse> articleResponsePage = new Page<>(articleRequest.getPageNum(),articleRequest.getPageSize(),esPojoSearchHits.hits().total().value());
+            if (CollUtil.isNotEmpty(articleEsPojos)){
+                List<ArticleResponse> articleResponses = BeanUtil.copyToList(articleEsPojos, ArticleResponse.class);
+                articleResponsePage.setRecords(articleResponses);
+            }
+            return R.ok(articleResponsePage);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
-        Page<ArticleResponse> articleResponsePage = new Page<>(articleRequest.getPageNum(),articleRequest.getPageSize(),esPojoSearchHits.getTotalHits());
-        articleResponsePage.setRecords(articleResponses);
-        return R.ok(articleResponsePage);
     }
 }

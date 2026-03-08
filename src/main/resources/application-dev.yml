@@ -68,3 +68,6 @@ knife4j:
   enable: true
   setting:
     language: zh_cn
+ai:
+  qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
+  zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD

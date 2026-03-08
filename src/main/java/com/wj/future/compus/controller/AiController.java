@@ -1,0 +1,71 @@
+package com.wj.future.compus.controller;
+
+import cn.hutool.core.collection.CollUtil;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import com.alibaba.dashscope.common.History;
+import com.wj.future.compus.entity.es.po.KnowledgeDoc;
+import com.wj.future.compus.service.AiService;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("ai")
+public class AiController {
+
+    @Resource(name = "zhiPuServiceImpl")
+    private AiService zhiPuService;
+
+    @Resource(name = "qianWenServiceImpl")
+    private AiService qianWenService;
+
+    @Autowired
+    private ElasticsearchClient elasticsearchClient;
+
+    @GetMapping("/chat")
+    public SseEmitter chat(String msg) throws IOException {
+        //todo：增加Embedding ，查询向量数据库
+
+
+        //todo:
+        History history = History.builder().bot("最新宝马三系30，二手21万").user("宝马三系多少钱").build();
+        List<History> histories = new ArrayList<>();
+        histories.add(history);
+        List<Double> embedding = qianWenService.embedding(msg);
+
+        List<Float> embeddingToFloat = embedding.stream().map(item -> {
+            Float f = Float.valueOf(String.valueOf(item));
+            return f;
+        }).toList();
+
+        SearchResponse<KnowledgeDoc> response = elasticsearchClient.search(s -> s
+                        .index("ai_chat_knowledge")
+                        .knn(kn -> kn  // 注意这里：有些版本需要传入列表
+                                .field("embedding")
+                                .queryVector(embeddingToFloat)
+                                .k(5)
+                                .numCandidates(100)
+                        ),
+                KnowledgeDoc.class);
+        List<KnowledgeDoc> knowledgeDocs = response.hits().hits().stream().map(Hit::source).toList();
+        String knowledgeDoc = "";
+        if (CollUtil.isNotEmpty(knowledgeDocs)) {
+            knowledgeDoc = knowledgeDocs.stream().map(KnowledgeDoc::getContent).collect(Collectors.joining(","));
+        }
+
+        // 使用流式调用方法
+        SseEmitter sseEmitter = qianWenService.chatForStream(msg,histories, knowledgeDoc);
+        sseEmitter.toString();
+        return sseEmitter;
+    }
+}
