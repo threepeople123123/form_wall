@@ -2,6 +2,7 @@ package com.wj.future.compus.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.KnnQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.dashscope.common.History;
@@ -48,15 +49,19 @@ public class AiController {
             return f;
         }).toList();
 
+        // 强制构建一个单一的 KnnQuery 对象，而不是使用 lambda 列表
+        KnnQuery knnQuery = new KnnQuery.Builder()
+                .field("embedding")
+                .queryVector(embeddingToFloat)
+                .k(5)
+                .numCandidates(100)
+                .build();
+
         SearchResponse<KnowledgeDoc> response = elasticsearchClient.search(s -> s
                         .index("ai_chat_knowledge")
-                        .knn(kn -> kn  // 注意这里：有些版本需要传入列表
-                                .field("embedding")
-                                .queryVector(embeddingToFloat)
-                                .k(5)
-                                .numCandidates(100)
-                        ),
-                KnowledgeDoc.class);
+                        .knn(knnQuery), // 这里传入单个对象，看是否触发 Client 的兼容逻辑
+                KnowledgeDoc.class
+        );
         List<KnowledgeDoc> knowledgeDocs = response.hits().hits().stream().map(Hit::source).toList();
         String knowledgeDoc = "";
         if (CollUtil.isNotEmpty(knowledgeDocs)) {
