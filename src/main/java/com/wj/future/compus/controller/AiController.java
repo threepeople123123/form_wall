@@ -1,12 +1,14 @@
 package com.wj.future.compus.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.KnnQuery;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.dashscope.common.History;
 import com.wj.future.compus.entity.es.po.KnowledgeDoc;
+import com.wj.future.compus.exception.FormWallException;
 import com.wj.future.compus.service.AiService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +36,10 @@ public class AiController {
     private ElasticsearchClient elasticsearchClient;
 
     @GetMapping("/chat")
-    public SseEmitter chat(String msg) throws IOException {
-        //todo：增加Embedding ，查询向量数据库
-
-
+    public SseEmitter chat(String msg,String conversationId) throws IOException, FormWallException {
+        if (StrUtil.isBlank(msg) && StrUtil.isBlank(conversationId)) {
+            throw new FormWallException("请输入内容");
+        }
         //todo:
         History history = History.builder().bot("最新宝马三系30，二手21万").user("宝马三系多少钱").build();
         List<History> histories = new ArrayList<>();
@@ -69,7 +71,7 @@ public class AiController {
         }
 
         // 使用流式调用方法
-        SseEmitter sseEmitter = qianWenService.chatForStream(msg,histories, knowledgeDoc);
+        SseEmitter sseEmitter = qianWenService.chatForStream(msg,histories, knowledgeDoc,conversationId);
         sseEmitter.toString();
         return sseEmitter;
     }

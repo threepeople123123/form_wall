@@ -42,12 +42,13 @@ public class ZhiPuServiceImpl<T> implements AiService<T> {
     /**
      * 通过流的方式进行返回
      *
-     * @param msg          用户发送的消息
+     * @param msg            用户发送的消息
      * @param knowledgeDoc
+     * @param conversationId
      * @return sse链接推送的ai生成内容
      */
     @Override
-    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc) {
+    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc, String conversationId) {
 
         SseEmitter sseEmitter = new SseEmitter();
         new Thread(() -> {

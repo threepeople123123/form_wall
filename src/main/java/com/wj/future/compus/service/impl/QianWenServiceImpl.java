@@ -1,6 +1,7 @@
 package com.wj.future.compus.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
@@ -10,13 +11,14 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.embeddings.*;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.alibaba.dashscope.exception.UploadFileException;
+import com.wj.future.compus.entity.nosql.userToBotConversation;
 import com.wj.future.compus.properties.ApiKeyProperties;
 import com.wj.future.compus.service.AiService;
 import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -24,11 +26,16 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.alibaba.dashscope.embeddings.TextEmbedding.Models.TEXT_EMBEDDING_V3;
+
 @Service("qianWenServiceImpl")
 public class QianWenServiceImpl<T> implements AiService<T> {
 
     @Autowired
     private ApiKeyProperties apiKeyProperties;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplateConfig;
 
     public static final Logger logger = LoggerFactory.getLogger(QianWenServiceImpl.class);
 
@@ -45,12 +52,13 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     /**
      * 通过流的方式进行返回
      *
-     * @param msg          用户发送的消息
-     * @param knowledgeDoc 知识库检索内容
+     * @param msg            用户发送的消息
+     * @param knowledgeDoc   知识库检索内容
+     * @param conversationId 会话id
      * @return sse链接推送的ai生成内容
      */
     @Override
-    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc) {
+    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc, String conversationId) {
         SseEmitter sseEmitter = new SseEmitter();
         new Thread(() -> {
             try {
@@ -87,6 +95,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         .build();
 
                 Flowable<GenerationResult> result = gen.streamCall(param);
+                StringBuffer aiReply = new StringBuffer();
                 result.blockingForEach(res -> {
 
                     String content = res.getOutput()
@@ -97,11 +106,17 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
                     try {
                         sseEmitter.send(content);
+                        aiReply.append(content);
                         logger.info("消息：{}",content);
                     } catch (IOException e) {
                         sseEmitter.completeWithError(e);
                     }
                 });
+                // 对话信息穿入redis
+                userToBotConversation userToBotConversation = new userToBotConversation();
+                userToBotConversation.setBot(aiReply.toString());
+                userToBotConversation.setUser(msg);
+                redisTemplateConfig.opsForHash().put("future:campus:user:to:ai",conversationId, JSONUtil.toJsonStr(userToBotConversation));
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {
                 throw new RuntimeException(e);
@@ -120,16 +135,17 @@ public class QianWenServiceImpl<T> implements AiService<T> {
         try {
             MultiModalEmbeddingItemText textContent = new MultiModalEmbeddingItemText(msg);
             List<MultiModalEmbeddingItemBase> contents = Arrays.asList(textContent);
-            MultiModalEmbeddingParam param = MultiModalEmbeddingParam.builder()
+
+            TextEmbeddingParam textEmbeddingParam = TextEmbeddingParam.builder().apiKey(apiKeyProperties.getQianWenApiKey()).text(msg).model(TEXT_EMBEDDING_V3).dimension(1024).build();
+            TextEmbedding textEmbedding = new TextEmbedding();
+            TextEmbeddingResult result = textEmbedding.call(textEmbeddingParam);
+            /*MultiModalEmbeddingParam param = MultiModalEmbeddingParam.builder()
                     .model("qwen3-vl-embedding")
                     .apiKey(apiKeyProperties.getQianWenApiKey())
                     .contents(contents)
                     .build();
             MultiModalEmbedding multiModalEmbedding = new MultiModalEmbedding();
-            MultiModalEmbeddingResult result = multiModalEmbedding.call(param);
-
-            // 输出结果
-            System.out.println(result);
+            MultiModalEmbeddingResult result = multiModalEmbedding.call(param);*/
 
             return result.getOutput().getEmbeddings().get(0).getEmbedding();
 
@@ -138,8 +154,6 @@ public class QianWenServiceImpl<T> implements AiService<T> {
             System.err.println("调用 API 时发生异常: " + e.getMessage());
             System.err.println("请检查您的 API Key 是否已正确配置。");
             e.printStackTrace();
-        } catch (UploadFileException e) {
-            throw new RuntimeException(e);
         }
         return null;
     }

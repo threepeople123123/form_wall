@@ -16,11 +16,12 @@ public interface AiService<T> {
     /**
      * 流式返回
      *
-     * @param msg          用户小心
+     * @param msg            用户小心
      * @param knowledgeDoc
+     * @param conversationId
      * @return sse返回的消息
      */
-    SseEmitter chatForStream(String msg, List<T> histroy, String knowledgeDoc);
+    SseEmitter chatForStream(String msg, List<T> histroy, String knowledgeDoc, String conversationId);
 
     /**
      * 模型向量化

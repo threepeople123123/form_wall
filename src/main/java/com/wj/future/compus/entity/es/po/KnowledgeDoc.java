@@ -1,7 +1,6 @@
 package com.wj.future.compus.entity.es.po;
 
 import lombok.Data;
-import org.checkerframework.checker.fenum.qual.Fenum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
@@ -18,7 +17,7 @@ public class KnowledgeDoc {
     @Id
     private String id;
 
-    @Field(name = "content",type = FieldType.Text,analyzer = "ik_max_word")
+    @Field(name = "content",type = FieldType.Text)
     private String content;
 
     @Field(name = "embedding",type = FieldType.Dense_Vector)
