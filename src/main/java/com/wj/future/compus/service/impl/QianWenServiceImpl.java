@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.alibaba.dashscope.embeddings.TextEmbedding.Models.TEXT_EMBEDDING_V3;
+import static com.wj.future.compus.campusEnum.RedisEnum.USER_BOT_TO_CONVERSATION;
 
 @Service("qianWenServiceImpl")
 public class QianWenServiceImpl<T> implements AiService<T> {
@@ -116,7 +117,10 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 userToBotConversation userToBotConversation = new userToBotConversation();
                 userToBotConversation.setBot(aiReply.toString());
                 userToBotConversation.setUser(msg);
-                redisTemplateConfig.opsForHash().put("future:campus:user:to:ai",conversationId, JSONUtil.toJsonStr(userToBotConversation));
+
+                //todo:发送mq，落库
+
+                redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversation));
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {
                 throw new RuntimeException(e);
