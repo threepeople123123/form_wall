@@ -11,10 +11,12 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.embeddings.*;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.wj.future.compus.entity.nosql.userToBotConversation;
+import com.wj.future.compus.entity.nosql.UserToBotConversation;
+import com.wj.future.compus.producer.SendMessageCallbackImpl;
 import com.wj.future.compus.properties.ApiKeyProperties;
 import com.wj.future.compus.service.AiService;
 import io.reactivex.Flowable;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplateConfig;
+
+    @Autowired
+    private RocketMQTemplate rocketMQTemplate;
 
     public static final Logger logger = LoggerFactory.getLogger(QianWenServiceImpl.class);
 
@@ -114,12 +119,13 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                     }
                 });
                 // 对话信息穿入redis
-                userToBotConversation userToBotConversation = new userToBotConversation();
+                UserToBotConversation userToBotConversation = new UserToBotConversation();
                 userToBotConversation.setBot(aiReply.toString());
                 userToBotConversation.setUser(msg);
+                userToBotConversation.setConversationId(conversationId);
 
-                //todo:发送mq，落库
-
+                //发送mq，落库
+                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));
                 redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversation));
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {
@@ -143,14 +149,6 @@ public class QianWenServiceImpl<T> implements AiService<T> {
             TextEmbeddingParam textEmbeddingParam = TextEmbeddingParam.builder().apiKey(apiKeyProperties.getQianWenApiKey()).text(msg).model(TEXT_EMBEDDING_V3).dimension(1024).build();
             TextEmbedding textEmbedding = new TextEmbedding();
             TextEmbeddingResult result = textEmbedding.call(textEmbeddingParam);
-            /*MultiModalEmbeddingParam param = MultiModalEmbeddingParam.builder()
-                    .model("qwen3-vl-embedding")
-                    .apiKey(apiKeyProperties.getQianWenApiKey())
-                    .contents(contents)
-                    .build();
-            MultiModalEmbedding multiModalEmbedding = new MultiModalEmbedding();
-            MultiModalEmbeddingResult result = multiModalEmbedding.call(param);*/
-
             return result.getOutput().getEmbeddings().get(0).getEmbedding();
 
         } catch (NoApiKeyException e) {

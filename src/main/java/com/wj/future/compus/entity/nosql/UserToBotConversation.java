@@ -10,4 +10,7 @@ public class UserToBotConversation {
 
     @Schema(description = "用户提的问题内容")
     private String user;
+
+    @Schema(description = "对话id")
+    private String conversationId;
 }

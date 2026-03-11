@@ -71,3 +71,9 @@ knife4j:
 ai:
   qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
   zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
+rocketmq:
+  name-server: 192.168.0.103:9876 # 替换为你的 Nameserver 地址
+  producer:
+    group: my-producer-group    # 生产者组名
+    send-message-timeout: 3000  # 发送超时时间 (ms)
+    retry-times-when-send-failed: 2 # 同步发送失败重试次数
