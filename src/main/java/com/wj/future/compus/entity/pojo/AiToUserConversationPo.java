@@ -14,7 +14,7 @@ public class AiToUserConversationPo {
 
     @Schema
     @TableId(type = ASSIGN_ID)
-    private String id;
+    private Long id;
 
     @Schema(description = "机器人")
     @TableField("bot")
