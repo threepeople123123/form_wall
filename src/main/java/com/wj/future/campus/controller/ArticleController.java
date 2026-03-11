@@ -87,7 +87,6 @@ public class ArticleController {
      * @return 返回列表
      * @exception FormWallException 异常
      */
-    @AuthIsLogin
     @PostMapping("/pageList")
     public R<Page<ArticleResponse>> pageList(@RequestBody ArticleRequest articleRequest) throws FormWallException {
         int viewRange = articleRequest.getViewRange();

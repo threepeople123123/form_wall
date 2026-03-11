@@ -40,6 +40,7 @@ public class UserController {
      * @return 用户信息
      * @throws FormWallException 自定义异常
      */
+    @AuthIsLogin
     @GetMapping("/queryInfo")
     public R<UserinfoResponse> queryUserinfo(HttpServletRequest request) throws FormWallException {
         UserPojo user = userUtil.getUser(request);
