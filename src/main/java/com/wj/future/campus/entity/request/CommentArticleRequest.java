@@ -28,5 +28,5 @@ public class CommentArticleRequest {
     private List<String> photoUrl;
 
     @Schema(description = "点赞数")
-    private long likeCount;
+    private boolean likeCount;
 }
