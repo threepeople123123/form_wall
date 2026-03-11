@@ -71,7 +71,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 Generation gen = new Generation();
                 Message systemMsg = Message.builder()
                         .role(Role.SYSTEM.getValue())
-                        .content("ai助手")
+                        .content("校园助手，你可以帮人搜帖子，解答各种问题")
                         .reasoningContent(knowledgeDoc)
                         .build();
                 Message userMsg = Message.builder()
