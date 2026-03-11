@@ -1,7 +1,7 @@
 package com.wj.future.campus.campusEnum;
 
 /**
- * packageName com.wj.future.compus.campusEnum
+ * packageName com.wj.future.campus.campusEnum
  *
  * @author wj
  * @className RedisEnum

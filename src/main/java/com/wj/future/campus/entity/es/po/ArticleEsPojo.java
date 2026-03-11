@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import static org.springframework.data.elasticsearch.annotations.DateFormat.date_hour_minute_second;
 
 /**
- * packageName com.wj.future.compus.entity.es.po
+ * packageName com.wj.future.campus.entity.es.po
  *
  * @author wangj
  * @className ArticleEsPojo

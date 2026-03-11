@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * packageName com.wj.future.compus.coonsumer
+ * packageName com.wj.future.campus.coonsumer
  *
  * @author wj
  * @className RocketMqConsumer
