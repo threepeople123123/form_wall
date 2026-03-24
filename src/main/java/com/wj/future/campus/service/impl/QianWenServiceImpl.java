@@ -2,6 +2,7 @@ package com.wj.future.campus.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
+import co.elastic.clients.elasticsearch.core.health_report.MasterIsStableIndicatorClusterFormationNode;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
@@ -34,6 +35,8 @@ import static com.wj.future.campus.campusEnum.RedisEnum.USER_BOT_TO_CONVERSATION
 @Service("qianWenServiceImpl")
 public class QianWenServiceImpl<T> implements AiService<T> {
 
+    public static final Logger logger = LoggerFactory.getLogger(QianWenServiceImpl.class);
+
     @Autowired
     private ApiKeyProperties apiKeyProperties;
 
@@ -43,7 +46,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     @Autowired
     private RocketMQTemplate rocketMQTemplate;
 
-    public static final Logger logger = LoggerFactory.getLogger(QianWenServiceImpl.class);
+
 
     /**
      * 一次性返回所有内容
@@ -153,9 +156,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
         } catch (NoApiKeyException e) {
             // 捕获并处理API Key未设置的异常
-            System.err.println("调用 API 时发生异常: " + e.getMessage());
-            System.err.println("请检查您的 API Key 是否已正确配置。");
-            e.printStackTrace();
+            logger.error("{},",e);
         }
         return null;
     }
