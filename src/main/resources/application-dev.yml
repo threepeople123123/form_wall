@@ -87,3 +87,9 @@ ai:
 #logging:
 #  level:
 #    org.apache.rocketmq.spring.autoconfigure: DEBUG
+
+typesense:
+  agreement: http
+  ip: 8.140.219.233
+  port: 8108
+  api-key: wangjian020426
