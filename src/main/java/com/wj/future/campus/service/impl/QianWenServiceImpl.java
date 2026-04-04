@@ -43,8 +43,8 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     @Autowired
     private RedisTemplate<String,Object> redisTemplateConfig;
 
-    @Autowired
-    private RocketMQTemplate rocketMQTemplate;
+//    @Autowired
+//    private RocketMQTemplate rocketMQTemplate;
 
 
 
@@ -128,7 +128,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 userToBotConversation.setConversationId(conversationId);
 
                 //发送mq，落库
-                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));
+//                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));
                 redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversation));
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {

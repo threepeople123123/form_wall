@@ -39,7 +39,7 @@ public class LoginController {
         String deviceType = loginRequest.getDeviceType();
         // 校验参数是否合法
         if (StrUtil.isBlank(phone) || !phone.matches("^1[3-9]\\d{9}$")){
-            throw new FormWallException("手机号不合法");
+            throw new FormWallException("邮箱不合法");
         }
         if (ObjectUtil.isEmpty(password) || password.length()<6){
             throw new FormWallException("密码不能为空，并且要大于等于6位数");
