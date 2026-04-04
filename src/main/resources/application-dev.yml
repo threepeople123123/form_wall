@@ -1,7 +1,7 @@
 spring:
   elasticsearch:
     rest:
-      uris: http://192.168.0.103:9200
+      uris: http://192.168.48.100:9200
       connection-timeout: 5s
       read-timeout: 30s
   data:
@@ -28,14 +28,18 @@ spring:
           # 连接池中的最小空闲连接
           min-idle: 0
   datasource:
-    # MySQL 连接 URL (核心配置)
-    url: jdbc:mysql://8.140.219.233:3306/form_wall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    # 数据库用户名
-    username: root
-    # 数据库密码
-    password: wangjian020426
-    # 数据库驱动类名 (MySQL 8.x 用 com.mysql.cj.jdbc.Driver，5.x 用 com.mysql.jdbc.Driver)
-    driver-class-name: com.mysql.cj.jdbc.Driver
+#    # MySQL 连接 URL (核心配置)
+#    url: jdbc:mysql://8.140.219.233:3306/form_wall?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#    # 数据库用户名
+#    username: root
+#    # 数据库密码
+#    password: wangjian020426
+#    # 数据库驱动类名 (MySQL 8.x 用 com.mysql.cj.jdbc.Driver，5.x 用 com.mysql.jdbc.Driver)
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://192.168.48.100:5432/campus-future
+    username: postgres
+    password: your_password
+    driver-class-name: org.postgresql.Driver
     # 可选：连接池配置 (推荐使用 HikariCP，Spring Boot 默认)
     hikari:
       # 最小空闲连接数
@@ -71,9 +75,15 @@ knife4j:
 ai:
   qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
   zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
-rocketmq:
-  name-server: 192.168.0.103:9876 # 替换为你的 Nameserver 地址
-  producer:
-    group: my-producer-group    # 生产者组名
-    send-message-timeout: 3000  # 发送超时时间 (ms)
-    retry-times-when-send-failed: 2 # 同步发送失败重试次数
+#rocketmq:
+#  name-server: 192.168.48.100:9876
+#  producer:
+#    group: campus-group
+#    send-message-timeout: 3000
+#    retry-times-when-send-failed: 2
+#  consumer:
+#    group: campus-group
+#    enabled: true
+#logging:
+#  level:
+#    org.apache.rocketmq.spring.autoconfigure: DEBUG
