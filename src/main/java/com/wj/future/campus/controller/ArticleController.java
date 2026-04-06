@@ -4,9 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wj.future.campus.annotation.AuthIsLogin;
 import com.wj.future.campus.entity.es.po.ArticleEsPojo;
@@ -21,14 +18,18 @@ import com.wj.future.campus.service.ArticleService;
 import com.wj.future.campus.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.typesense.api.Client;
+import org.typesense.model.SearchParameters;
+import org.typesense.model.SearchResult;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/article")
@@ -41,7 +42,11 @@ public class ArticleController {
     private ArticleService articleService;
 
     @Autowired
-    private ElasticsearchClient elasticsearchClient;
+    private Client typesenseClient;
+
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+
 
     @AuthIsLogin
     @PostMapping("/publish")
@@ -63,6 +68,8 @@ public class ArticleController {
         UserPojo user = userUtil.getUser(request);
 
         ArticlePojo articlePojo = new ArticlePojo();
+
+
         if (viewRange == 2){
             if (StrUtil.isBlank(user.getSchoolId())){
                 throw new FormWallException("请先绑定学校");
@@ -71,14 +78,44 @@ public class ArticleController {
                 articlePojo.setSchoolName(user.getSchoolName());
             }
         }
-        articlePojo.setSendUserId(user.getUserId());
-        articlePojo.setSendUserName(user.getUserName());
-        articlePojo.setCreateTime(LocalDateTime.now());
-        articlePojo.setUpdateTime(LocalDateTime.now());
-        articlePojo.setPhotoUrl(JSONUtil.toJsonStr(photoUrl));
-        articlePojo.setViewRange(viewRange);
-        boolean save = articleService.save(articlePojo);
-        return  save ? R.ok("发布成功"):R.failure("发布失败");
+
+        boolean result = Boolean.TRUE.equals(transactionTemplate.execute(transactionStatus -> {
+            articlePojo.setSendUserId(user.getUserId());
+            articlePojo.setSendUserName(user.getUserName());
+            articlePojo.setCreateTime(LocalDateTime.now());
+            articlePojo.setUpdateTime(LocalDateTime.now());
+            articlePojo.setPhotoUrl(JSONUtil.toJsonStr(photoUrl));
+            articlePojo.setContent(article);
+            articlePojo.setViewRange(viewRange);
+            boolean save = articleService.save(articlePojo);
+            if (save) {
+
+                ArticleEsPojo articleEsPojo = new ArticleEsPojo();
+                articleEsPojo.setId(articlePojo.getId());
+                articleEsPojo.setTitle(title);
+                articleEsPojo.setContent(article);
+                articleEsPojo.setPhotoUrl(articlePojo.getPhotoUrl());
+                articleEsPojo.setCreateTime(LocalDateTime.now());
+                articleEsPojo.setSendUserId(user.getUserId());
+                articleEsPojo.setSendUserName(user.getUserName());
+                articleEsPojo.setUpdateTime(LocalDateTime.now());
+                articleEsPojo.setViewRange(viewRange);
+                articleEsPojo.setSchoolId(user.getSchoolId());
+                articleEsPojo.setSchoolName(user.getSchoolName());
+                articleEsPojo.setLikeCount(0);
+                articleEsPojo.setHeat(0);
+
+                Map<String, Object> articleEsPojoToMap = BeanUtil.beanToMap(articleEsPojo);
+                try {
+                    typesenseClient.collections("article_index").documents().create(articleEsPojoToMap);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return save;
+        }));
+
+        return  result ? R.okMsg("发布成功"):R.failure("发布失败");
     }
 
     /**
@@ -98,91 +135,53 @@ public class ArticleController {
             }
         }
         try {
-            SearchResponse<ArticleEsPojo> esPojoSearchHits = elasticsearchClient.search(s -> s
-                            .index("article_index")
-                            .from(articleRequest.getPageNum() * articleRequest.getPageSize())
-                            .size(articleRequest.getPageSize())
+            SearchParameters searchParameters = new SearchParameters()
+                    // 对应 ES 的 should (title / content)
+                    .q(articleRequest.getQuery())
+                    .queryBy("title,content")
 
-                            .query(q -> q
-                                    .bool(b -> b
+                    // 对应 ES 的 filter
+                    .filterBy(String.format("schoolName:=`%s` && schoolId:=`%s` && viewRange:=%d",
+                            articleRequest.getSchoolName(),
+                            articleRequest.getSchoolId(),
+                            articleRequest.getViewRange()))
 
-                                            // should：title / content
-                                            .should(sh -> sh
-                                                    .match(m -> m
-                                                            .field("title")
-                                                            .query(articleRequest.getQuery())
-                                                    )
-                                            )
-                                            .should(sh -> sh
-                                                    .match(m -> m
-                                                            .field("content")
-                                                            .query(articleRequest.getQuery())
-                                                    )
-                                            )
+                    // 对应 ES 的 sort (注意：Typesense 中排序字段必须在 Schema 中预设为 sort: true)
+                    .sortBy("createTime:desc,likeCount:desc,heat:desc")
 
-                                            // filter条件
-                                            .filter(f -> f
-                                                    .term(t -> t
-                                                            .field("schoolName")
-                                                            .value(articleRequest.getSchoolName())
-                                                    )
-                                            )
-                                            .filter(f -> f
-                                                    .term(t -> t
-                                                            .field("schoolId")
-                                                            .value(articleRequest.getSchoolId())
-                                                    )
-                                            )
-                                            .filter(f -> f
-                                                    .term(t -> t
-                                                            .field("viewRange")
-                                                            .value(articleRequest.getViewRange())
-                                                    )
-                                            )
-                                    )
-                            )
+                    // 分页 (Typesense 页码从 1 开始)
+                    .page(articleRequest.getPageNum() + 1)
+                    .perPage(articleRequest.getPageSize());
 
-                            // 排序
-                            .sort(sort -> sort
-                                    .field(f -> f
-                                            .field("createTime")
-                                            .order(SortOrder.Desc)
-                                    )
-                            )
-                            .sort(sort -> sort
-                                    .field(f -> f
-                                            .field("likeCount")
-                                            .order(SortOrder.Desc)
-                                    )
-                            )
-                            .sort(sort -> sort
-                                    .field(f -> f
-                                            .field("heat")
-                                            .order(SortOrder.Desc)
-                                    )
-                            )
+            // 2. 执行搜索
 
-                    , ArticleEsPojo.class
-            );
-            List<ArticleEsPojo> articleEsPojos = esPojoSearchHits.hits()
-                    .hits()
-                    .stream()
-                    .map(hit -> hit.source())
+            SearchResult searchResult = typesenseClient.collections("article_index").documents().search(searchParameters);
+
+            // 3. 处理结果映射 (Typesense 返回的是 Map<String, Object>)
+            List<ArticleEsPojo> articleEsPojos = searchResult.getHits().stream()
+                    .map(hit -> {
+                        // Typesense SDK 会将 document 映射为 Map
+                        return BeanUtil.fillBeanWithMap(hit.getDocument(), new ArticleEsPojo(), false);
+                    })
                     .toList();
 
+            // 4. 封装分页对象
+            Page<ArticleResponse> articleResponsePage = new Page<>(
+                    articleRequest.getPageNum(),
+                    articleRequest.getPageSize(),
+                    searchResult.getFound() // 总命中数
+            );
 
-            Page<ArticleResponse> articleResponsePage = new Page<>(articleRequest.getPageNum(),articleRequest.getPageSize(),esPojoSearchHits.hits().total().value());
-            if (CollUtil.isNotEmpty(articleEsPojos)){
+            if (CollUtil.isNotEmpty(articleEsPojos)) {
                 List<ArticleResponse> articleResponses = BeanUtil.copyToList(articleEsPojos, ArticleResponse.class);
                 articleResponsePage.setRecords(articleResponses);
             }
+
             return R.ok(articleResponsePage);
-        } catch (IOException e) {
+        } catch (Exception e) {
 
             // 查询数据库
-
-
-            throw new RuntimeException(e);
+            throw new FormWallException("查询失败");
         }
     }
 }

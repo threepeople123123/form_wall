@@ -11,7 +11,8 @@ package com.wj.future.campus.responseEunm;
 public enum ResponseEnum {
 
 
-    LOGIN_SUCCESS("登录成功",200);
+    LOGIN_SUCCESS("登录成功",200)
+    ,REST_PASSWORD_FAIL("登录成功",500);
 
     private final String message;
     private final int code;

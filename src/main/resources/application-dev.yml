@@ -1,9 +1,4 @@
 spring:
-  elasticsearch:
-    rest:
-      uris: http://192.168.48.100:9200
-      connection-timeout: 5s
-      read-timeout: 30s
   data:
     # redis配置
     redis:
@@ -36,9 +31,9 @@ spring:
 #    password: wangjian020426
 #    # 数据库驱动类名 (MySQL 8.x 用 com.mysql.cj.jdbc.Driver，5.x 用 com.mysql.jdbc.Driver)
 #    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:postgresql://192.168.48.100:5432/campus-future
+    url: jdbc:postgresql://8.140.219.233:5432/campus-future
     username: postgres
-    password: your_password
+    password: wangjian020426
     driver-class-name: org.postgresql.Driver
     # 可选：连接池配置 (推荐使用 HikariCP，Spring Boot 默认)
     hikari:
@@ -50,6 +45,20 @@ spring:
       connection-timeout: 30000
       # 连接最大存活时间（毫秒）
       max-lifetime: 1800000
+  mail:
+    host: smtp.qq.com
+    port: 465 # 或者 587
+    username: 1994814695@qq.com
+    password: lpclwlacqopldgca
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          # 如果使用 465 端口，通常需要启用 SSL
+          ssl:
+            enable: true
 
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
@@ -90,6 +99,12 @@ ai:
 
 typesense:
   agreement: http
-  ip: 8.140.219.233
+  host: 8.140.219.233
   port: 8108
-  api-key: wangjian020426
+  apiKey: Wangjian020426
+
+
+minio:
+  endpoint: http://8.140.219.233:9000
+  accessKey: minioadmin
+  secretKey: minioadmin

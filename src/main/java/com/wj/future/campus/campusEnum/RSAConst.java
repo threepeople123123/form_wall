@@ -1,4 +1,4 @@
-package com.wj.future.compus.campusConst;
+package com.wj.future.campus.campusEnum;
 
 
 public class RSAConst {

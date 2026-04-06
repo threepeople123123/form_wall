@@ -3,6 +3,7 @@ package com.wj.future.campus.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wj.future.campus.entity.request.LoginRequest;
 import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.request.RegisterRequest;
 import com.wj.future.campus.exception.FormWallException;
 
 /**
@@ -24,8 +25,8 @@ public interface UserService extends IService<UserPojo> {
 
     /**
      * 注册逻辑
-     * @param loginRequest 用户输入的注册信息
+     * @param registerRequest 用户输入的注册信息
      * @return 用户id
      */
-    Long register(LoginRequest loginRequest);
+    UserPojo register(RegisterRequest registerRequest);
 }

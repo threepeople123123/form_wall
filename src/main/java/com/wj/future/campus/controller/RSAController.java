@@ -1,8 +1,8 @@
-package com.wj.future.compus.controller;
+package com.wj.future.campus.controller;
 
-import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
-import com.wj.future.compus.campusConst.RSAConst;
-import com.wj.future.compus.result.R;
+
+import com.wj.future.campus.campusEnum.RSAConst;
+import com.wj.future.campus.result.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

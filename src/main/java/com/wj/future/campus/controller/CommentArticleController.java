@@ -67,7 +67,7 @@ public class CommentArticleController {
         // 直接保存
 //        commentArticleService.save()
 
-        return R.ok("发送成功");
+        return R.okMsg("发送成功");
     }
 
 }

@@ -1,11 +1,10 @@
-package com.wj.future.compus.service.impl;
+package com.wj.future.campus.service.impl;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wj.future.compus.entity.pojo.ConversationVectorPojo;
-import com.wj.future.compus.mapper.ConversationVectorMapper;
-import com.wj.future.compus.service.ConversationVectorService;
+import com.wj.future.campus.entity.pojo.ConversationVectorPojo;
+import com.wj.future.campus.mapper.ConversationVectorMapper;
+import com.wj.future.campus.service.ConversationVectorService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

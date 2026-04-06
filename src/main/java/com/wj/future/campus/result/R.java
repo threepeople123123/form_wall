@@ -28,7 +28,7 @@ public class R<T> {
         return r;
     }
 
-    public static <T> R<T> ok(String message){
+    public static <T> R<T> okMsg(String message){
         R<T> r = new R<>();
         r.setData(null);
         r.setCode(200);
@@ -85,6 +85,14 @@ public class R<T> {
     }
 
     public static <T> R<T> failure(String message){
+        R<T> r = new R<>();
+        r.setData(null);
+        r.setCode(500);
+        r.setMessage(message);
+        return r;
+    }
+
+    public static <T> R<T> failure(String message,int code){
         R<T> r = new R<>();
         r.setData(null);
         r.setCode(500);

@@ -1,4 +1,4 @@
-package com.wj.future.compus.config;
+package com.wj.future.campus.config;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.allminilml6v2q.AllMiniLmL6V2QuantizedEmbeddingModel;

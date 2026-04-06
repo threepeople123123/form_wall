@@ -1,24 +1,22 @@
-package com.wj.future.compus.entity.pojo;
+package com.wj.future.campus.entity.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.wj.future.compus.handler.VectorTypeHandler;
+import com.wj.future.campus.handler.VectorTypeHandler;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @TableName(value = "conversation_vector", autoResultMap = true)
 public class ConversationVectorPojo {
-    @Schema(description = "id")
+    @Schema(description = "主键")
     @TableId(value= "id",type = IdType.ASSIGN_ID)
     private long id;
 
     @TableField(value = "user_vector",typeHandler = VectorTypeHandler.class)
-    @Schema(description = "用户向量")
+    @Schema(description = "用户向量" )
     private float[] userVector;
 
     @TableField(value = "user_msg")

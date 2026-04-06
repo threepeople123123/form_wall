@@ -1,6 +1,7 @@
 package com.wj.future.campus.controller;
 
 import com.wj.future.campus.result.R;
+import io.minio.MinioClient;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -23,6 +24,8 @@ public class ObjectController {
 
     @RequestMapping("/upload")
     public R<String> upload(@RequestPart("files") List<MultipartFile> files, HttpServletRequest request){
-        return R.ok("url");
+
+
+        return R.okMsg("url");
     }
 }

@@ -1,4 +1,4 @@
-package com.wj.future.compus.util;
+package com.wj.future.campus.util;
 
 import javax.crypto.Cipher;
 import java.security.*;

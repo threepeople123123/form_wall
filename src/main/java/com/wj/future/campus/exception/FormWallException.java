@@ -14,9 +14,9 @@ public class FormWallException extends Exception{
 
     private int code = 500;
 
-    public FormWallException(String meessage){
-        super(meessage);
-        this.message = meessage;
+    public FormWallException(String message){
+        super(message);
+        this.message = message;
     }
 
     public FormWallException(String message,int code){

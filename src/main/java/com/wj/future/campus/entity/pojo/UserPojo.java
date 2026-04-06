@@ -10,7 +10,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("user")
+@TableName("campus_user")
 public class UserPojo {
 
     @TableId(value = "id",type = IdType.AUTO)
@@ -21,9 +21,9 @@ public class UserPojo {
     @Schema(description = "用户id")
     private Long userId;
 
-    @TableField("phone")
+    @TableField("email")
     @Schema(description = "手机号")
-    private String phone;
+    private String email;
 
     @TableField("password")
     @Schema(description = "密码")

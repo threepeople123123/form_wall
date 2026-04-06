@@ -1,4 +1,5 @@
-package com.wj.future.compus.handler;
+package com.wj.future.campus.handler;
+
 
 import com.pgvector.PGvector;
 import org.apache.ibatis.type.BaseTypeHandler;
@@ -7,7 +8,7 @@ import org.apache.ibatis.type.MappedTypes;
 
 import java.sql.*;
 
-@MappedTypes(float[].class) // 或者使用 PGvector.class
+@MappedTypes(float[].class)
 public class VectorTypeHandler extends BaseTypeHandler<float[]> {
 
     @Override
@@ -19,7 +20,7 @@ public class VectorTypeHandler extends BaseTypeHandler<float[]> {
     @Override
     public float[] getNullableResult(ResultSet rs, String columnName) throws SQLException {
         Object obj = rs.getObject(columnName);
-        return obj == null ? null : ((PGvector) obj).toArray();
+        return obj == null ? null : ((PGvector)obj).toArray();
     }
 
     @Override

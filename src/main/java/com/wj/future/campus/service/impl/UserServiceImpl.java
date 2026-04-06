@@ -5,10 +5,12 @@ import cn.hutool.http.HttpStatus;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.LoginRequest;
+import com.wj.future.campus.entity.request.RegisterRequest;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.mapper.UserMapper;
 import com.wj.future.campus.service.UserService;
 import com.wj.future.campus.util.MySecurityUtil;
+import com.wj.future.campus.util.RSAUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,9 +34,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
      */
     @Override
     public Long login(LoginRequest loginRequest, UserPojo userPojo) throws FormWallException {
-        String password = userPojo.getPassword();
+
         String md5Security = MySecurityUtil.md5Security(loginRequest.getPassword());
-        if (password.equals(md5Security)){
+        if (userPojo.getPassword().equals(md5Security)){
             return userPojo.getUserId();
         }
         throw new FormWallException("密码错误", HttpStatus.HTTP_INTERNAL_ERROR);
@@ -42,23 +44,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
 
     /**
      * 注册逻辑
-     * @param loginRequest 用户输入的注册信息
+     * @param registerRequest 用户输入的注册信息
      * @return 用户id
      */
     @Override
-    public Long register(LoginRequest loginRequest) {
+    public UserPojo register(RegisterRequest registerRequest) {
         // 随机生成字符串
         long snowflakeNextId = IdUtil.getSnowflakeNextId();
 
         UserPojo userPojo = new UserPojo();
         userPojo.setUserId(snowflakeNextId);
-        userPojo.setUserName(loginRequest.getUserName());
-        userPojo.setPhone(loginRequest.getPhone());
-        userPojo.setPassword(MySecurityUtil.md5Security(loginRequest.getPassword()));
+        userPojo.setUserName(registerRequest.getUserName());
+        userPojo.setEmail(registerRequest.getEmail());
+        userPojo.setPassword(MySecurityUtil.md5Security(registerRequest.getPassword()));
         userPojo.setCreateTime(LocalDateTime.now());
         userPojo.setUpdateTime(LocalDateTime.now());
         save(userPojo);
 
-        return snowflakeNextId;
+        return userPojo;
     }
 }

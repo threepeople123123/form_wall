@@ -1,7 +1,8 @@
-package com.wj.future.compus.service;
+package com.wj.future.campus.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wj.future.compus.entity.pojo.ConversationVectorPojo;
+import com.wj.future.campus.entity.pojo.ConversationVectorPojo;
+
 
 import java.util.List;
 
