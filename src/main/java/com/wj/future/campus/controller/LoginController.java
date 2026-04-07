@@ -16,6 +16,7 @@ import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.UserService;
 import com.wj.future.campus.util.EmailUtil;
+import com.wj.future.campus.util.MySecurityUtil;
 import com.wj.future.campus.util.RSAUtils;
 import com.wj.future.campus.util.UserUtil;
 import org.slf4j.Logger;
@@ -152,24 +153,31 @@ public class LoginController {
         return R.ok(LOGIN_SUCCESS.getMessage(),LOGIN_SUCCESS.getCode());
     }
 
+
     @PostMapping("/resetPassword")
     public R<String> restPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) throws FormWallException {
+    // Extract request parameters
         String confirmPassword = resetPasswordRequest.getConfirmPassword();
         String password = resetPasswordRequest.getPassword();
         String email = resetPasswordRequest.getEmail();
         String verificationCode = resetPasswordRequest.getVerificationCode();
+    // Validate email format
         if (StrUtil.isBlank(email) || !email.matches("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$")){
             throw new FormWallException("邮箱不合法");
         }
+    // Validate password requirements
         if (ObjectUtil.isEmpty(password) || password.length()<6){
             throw new FormWallException("密码不能为空，并且要大于等于6位数");
         }
+    // Check if confirm password is provided
         if (StrUtil.isBlank(confirmPassword)){
             throw new FormWallException("请输入确认密码");
         }
+    // Check if verification code is provided
         if (StrUtil.isBlank(verificationCode)){
             throw  new FormWallException("验证码不能为空");
         }
+    // Verify the email code in Redis
         Boolean exit = redisTemplate.hasKey("emailCode:" + email);
         if (exit){
             String redisCode = (String) redisTemplate.opsForValue().get("emailCode:" + email);
@@ -181,6 +189,7 @@ public class LoginController {
         }
 
         try {
+            // 解密
             password = RSAUtils.decrypt(password, RSAConst.PRIVATE_KEY);
             resetPasswordRequest.setPassword(password);
 
@@ -202,10 +211,10 @@ public class LoginController {
             throw new FormWallException("用户不存在");
         }
         LambdaUpdateWrapper<UserPojo> uw = new LambdaUpdateWrapper();
-        uw.set(UserPojo::getPassword,password);
+        uw.set(UserPojo::getPassword, MySecurityUtil.md5Security(password));
         uw.eq(UserPojo::getEmail,userPojo.getEmail());
         boolean update = userService.update(uw);
-        return  update ? R.ok(LOGIN_SUCCESS.getMessage(),LOGIN_SUCCESS.getCode()) : R.failure(REST_PASSWORD_FAIL.getMessage(),REST_PASSWORD_FAIL.getCode());
+        return  update ? R.ok("重置密码成功",LOGIN_SUCCESS.getCode()) : R.failure(REST_PASSWORD_FAIL.getMessage(),REST_PASSWORD_FAIL.getCode());
     }
 
     @GetMapping("/logout/{deviceType}")

@@ -49,7 +49,7 @@ public class ArticleController {
 
 
     @AuthIsLogin
-    @PostMapping("/publish")
+    @PostMapping("/publishArticle")
     public R<String> publish(@RequestBody SendArticleRequest sendArticleRequest , HttpServletRequest request) throws FormWallException {
         String article = sendArticleRequest.getArticle();
         List<String> photoUrl = sendArticleRequest.getPhotoUrl();

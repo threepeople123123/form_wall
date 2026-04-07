@@ -20,7 +20,11 @@ public class TagPojo {
     @Schema(description = "标签id")
     private String id;
 
-    @TableField("tag")
+    @TableField("tag_name")
     @Schema(description = "标签名称")
-    private String tag;
+    private String tagName;
+
+    @TableField("hot")
+    @Schema(description = "标签热度")
+    public int hot;
 }

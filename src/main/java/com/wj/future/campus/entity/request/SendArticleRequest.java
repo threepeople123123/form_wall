@@ -1,5 +1,6 @@
 package com.wj.future.campus.entity.request;
 
+import com.wj.future.campus.entity.pojo.TagPojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -16,6 +17,9 @@ public class SendArticleRequest {
 
     @Schema(description = "查看范围,1:全部，2:学校")
     private int viewRange = 1;
+
+    @Schema(description = "标签列表")
+    private List<TagPojo> tags;
 
     @Schema(description = "图片地址")
     private List<String> photoUrl;
