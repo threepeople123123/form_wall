@@ -23,7 +23,7 @@ import static org.springframework.data.elasticsearch.annotations.DateFormat.date
 @Data
 public class ArticleEsPojo {
     @Id
-    private String id;
+    private Long id;
 
     @Field(name = "title",type = FieldType.Text,analyzer = "ik_max_word")
     @Schema(description = "标题")

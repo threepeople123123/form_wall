@@ -107,6 +107,7 @@ minio:
   endpoint: http://8.140.219.233:9000
   accessKey: minioadmin
   secretKey: minioadmin
+  bucketName: campus-future
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

@@ -1,6 +1,7 @@
 package com.wj.future.campus.entity.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,8 +19,8 @@ import java.time.LocalDateTime;
 @Data
 @TableName("article")
 public class ArticlePojo {
-    @TableField("id")
-    private String id;
+    @TableId("id")
+    private Long id;
 
     @Schema(description = "标题")
     @TableField("title")

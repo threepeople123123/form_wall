@@ -2,12 +2,15 @@ package com.wj.future.campus.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wj.future.campus.annotation.AuthIsLogin;
 import com.wj.future.campus.entity.es.po.ArticleEsPojo;
 import com.wj.future.campus.entity.pojo.ArticlePojo;
+import com.wj.future.campus.entity.pojo.FilePojo;
 import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.request.SendArticleRequest;
@@ -15,6 +18,7 @@ import com.wj.future.campus.entity.response.ArticleResponse;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.ArticleService;
+import com.wj.future.campus.service.FileService;
 import com.wj.future.campus.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +51,15 @@ public class ArticleController {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private FileService fileService;
+
 
     @AuthIsLogin
     @PostMapping("/publishArticle")
     public R<String> publish(@RequestBody SendArticleRequest sendArticleRequest , HttpServletRequest request) throws FormWallException {
         String article = sendArticleRequest.getArticle();
-        List<String> photoUrl = sendArticleRequest.getPhotoUrl();
+        List<String> photoIds = sendArticleRequest.getPhotoIds();
         int viewRange = sendArticleRequest.getViewRange();
         String title = sendArticleRequest.getTitle();
 
@@ -62,7 +69,7 @@ public class ArticleController {
         if (StrUtil.isBlank(article)){
             throw new FormWallException("内容不能为空");
         }
-        if (CollUtil.isNotEmpty(photoUrl) && photoUrl.size() > 9){
+        if (CollUtil.isNotEmpty(photoIds) && photoIds.size() > 9){
             throw new FormWallException("最多不超过9张图片");
         }
         UserPojo user = userUtil.getUser(request);
@@ -80,15 +87,24 @@ public class ArticleController {
         }
 
         boolean result = Boolean.TRUE.equals(transactionTemplate.execute(transactionStatus -> {
+            articlePojo.setId(IdUtil.getSnowflakeNextId());
             articlePojo.setSendUserId(user.getUserId());
             articlePojo.setSendUserName(user.getUserName());
             articlePojo.setCreateTime(LocalDateTime.now());
             articlePojo.setUpdateTime(LocalDateTime.now());
-            articlePojo.setPhotoUrl(JSONUtil.toJsonStr(photoUrl));
+            articlePojo.setPhotoUrl(JSONUtil.toJsonStr(photoIds));
             articlePojo.setContent(article);
             articlePojo.setViewRange(viewRange);
-            boolean save = articleService.save(articlePojo);
-            if (save) {
+            boolean tableResult = articleService.save(articlePojo);
+
+            if (CollUtil.isNotEmpty(photoIds)){
+                // 更新
+                LambdaUpdateWrapper<FilePojo> uw = new LambdaUpdateWrapper<>();
+                uw.set(FilePojo::getCorrelationId,articlePojo.getId());
+                uw.in(FilePojo::getId,photoIds);
+                tableResult = fileService.update(uw);
+            }
+            if (tableResult) {
 
                 ArticleEsPojo articleEsPojo = new ArticleEsPojo();
                 articleEsPojo.setId(articlePojo.getId());
@@ -112,7 +128,7 @@ public class ArticleController {
                     throw new RuntimeException(e);
                 }
             }
-            return save;
+            return tableResult;
         }));
 
         return  result ? R.okMsg("发布成功"):R.failure("发布失败");
