@@ -7,7 +7,7 @@ import lombok.Data;
 public class UploadFileResponse {
 
     @Schema(description = "文件id")
-    private String id;
+    private Long id;
 
     @Schema(description = "下载地址")
     private String downloadUrl;

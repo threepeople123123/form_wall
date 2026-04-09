@@ -3,6 +3,7 @@ package com.wj.future.campus.service.impl;
 import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.wj.future.campus.entity.pojo.FilePojo;
+import com.wj.future.campus.entity.response.UploadFileResponse;
 import com.wj.future.campus.mapper.FileMapper;
 import com.wj.future.campus.service.FileService;
 import com.wj.future.campus.util.MinioUtil;
@@ -23,15 +24,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePojo> implement
     @Autowired
     private MinioUtil minioUtil;
 
-    @Value("${minio.bucketName}")
-    private String bucketName;
-
-
     /*
      上传文件
      */
     @Override
-    public String upload(MultipartFile file, HttpServletRequest request) {
+    public UploadFileResponse upload(MultipartFile file, HttpServletRequest request) {
         String objectName = minioUtil.upload(file);
         String fileUrl = minioUtil.getFileUrl(objectName);
 
@@ -45,7 +42,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePojo> implement
         filePojo.setObjectName(objectName);
         save(filePojo);
 
-        return fileUrl;
+        UploadFileResponse uploadFileResponse = new UploadFileResponse();
+        uploadFileResponse.setDownloadUrl(fileUrl);
+        uploadFileResponse.setId(filePojo.getId());
+
+        return uploadFileResponse;
     }
 
     /*
