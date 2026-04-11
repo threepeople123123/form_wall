@@ -1,9 +1,14 @@
 package com.wj.future.campus.util;
 
 import cn.hutool.core.util.IdUtil;
+import com.wj.future.campus.entity.pojo.FilePojo;
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.GetObjectArgs;
 import io.minio.errors.*;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,6 +30,9 @@ public class MinioUtil {
     @Autowired
     private MinioClient minioClient;
 
+    @Value("${minio.downloadUrl}")
+    private String downloadUrl;
+
     public String getObjectName(String originalFilename){
         String extension = "";
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -34,13 +42,12 @@ public class MinioUtil {
         return "files/" + timestamp + "_" + IdUtil.getSnowflakeNextId() + extension;
     }
 
-    public String upload(MultipartFile file){
+    public void upload(MultipartFile file, String objectName){
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("文件不能为空");
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            String objectName = getObjectName(file.getOriginalFilename());
 
             PutObjectArgs putObjectArgs = PutObjectArgs.builder()
                     .bucket(BUCKET_NAME)
@@ -51,7 +58,7 @@ public class MinioUtil {
 
             minioClient.putObject(putObjectArgs);
 
-            return objectName;
+
         } catch (IOException e) {
             throw new RuntimeException("文件上传失败: " + e.getMessage(), e);
         } catch (ErrorResponseException e) {
@@ -73,22 +80,57 @@ public class MinioUtil {
         }
     }
 
-    public String getFileUrl(String objectName) {
+    public void download(FilePojo filePojo, HttpServletResponse response){
+        InputStream inputStream = null;
+        String objectName = filePojo.getObjectName();
+        ServletOutputStream outputStream = null;
         try {
-            return minioClient.getPresignedObjectUrl(
-                    io.minio.GetPresignedObjectUrlArgs.builder()
-                            .method(io.minio.http.Method.GET)
-                            .bucket(BUCKET_NAME)
-                            .object(objectName)
-                            .expiry(24 * 60 * 60)
-                            .build()
+            // 从MinIO获取文件流
+            inputStream = minioClient.getObject(
+                GetObjectArgs.builder()
+                    .bucket(BUCKET_NAME)
+                    .object(objectName)
+                    .build()
             );
+                
+            // 设置响应头
+            String fileName = objectName.substring(objectName.lastIndexOf("/") + 1);
+            response.setContentType(filePojo.getContentType());
+            response.setCharacterEncoding("UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + 
+                java.net.URLEncoder.encode(fileName, "UTF-8"));
+                
+            // 将文件流写入响应输出流
+            outputStream = response.getOutputStream();
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+            outputStream.flush();
         } catch (Exception e) {
-            throw new RuntimeException("获取文件URL失败: " + e.getMessage(), e);
+            throw new RuntimeException("文件下载失败: " + e.getMessage(), e);
+        } finally {
+            // 关闭流
+            try {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("关闭流失败: " + e.getMessage(), e);
+            }
         }
     }
 
+
     public String getBucketName(){
         return BUCKET_NAME;
+    }
+
+    public  String getDownloadUrl(long fileId){
+        return downloadUrl + fileId;
     }
 }

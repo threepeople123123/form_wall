@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -16,8 +17,17 @@ public class FilePojo {
     @TableField("correlation_id")
     private String correlationId;
 
+    @TableField("user_id")
+    private long userId;
+
+    @TableField("user_name")
+    private String userName;
+
     @TableField("file_name")
     private String fileName;
+
+    @TableField("content_type")
+    private String contentType;
 
     @TableField("download_url")
     private String downloadUrl;
