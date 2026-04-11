@@ -13,7 +13,7 @@ public class SendArticleRequest {
     private String title;
 
     @Schema(description = "内容")
-    private String article;
+    private String content;
 
     @Schema(description = "查看范围,1:全部，2:学校")
     private int viewRange = 1;

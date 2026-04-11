@@ -44,13 +44,10 @@ public class UserUtil {
     }
 
     public UserPojo getUser(HttpServletRequest request) throws FormWallException {
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            String token = cookie.getAttribute("token");
-            if (StrUtil.isNotBlank(token)){
-                String userJson = (String)redisTemplate.opsForHash().get(USER_KEY, token);
-                return JSONUtil.toBean(userJson, UserPojo.class);
-            }
+        String token = request.getHeader("token");
+        if (StrUtil.isNotBlank(token)){
+            String userJson = (String)redisTemplate.opsForHash().get(USER_KEY, token);
+            return JSONUtil.toBean(userJson, UserPojo.class);
         }
         throw new FormWallException("用户未登录");
     }

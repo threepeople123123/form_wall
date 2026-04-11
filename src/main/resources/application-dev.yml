@@ -59,6 +59,10 @@ spring:
           # 如果使用 465 端口，通常需要启用 SSL
           ssl:
             enable: true
+  jackson:
+    serialization:
+      # 建议禁用这个，否则日期会变成一串数字数组 [2023,10,27...]
+      write-dates-as-timestamps: false
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
   # token 名称（同时也是 cookie 名称）

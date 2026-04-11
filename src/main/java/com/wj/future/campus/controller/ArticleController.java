@@ -58,7 +58,7 @@ public class ArticleController {
     @AuthIsLogin
     @PostMapping("/publishArticle")
     public R<String> publish(@RequestBody SendArticleRequest sendArticleRequest , HttpServletRequest request) throws FormWallException {
-        String article = sendArticleRequest.getArticle();
+        String content = sendArticleRequest.getContent();
         List<String> photoIds = sendArticleRequest.getPhotoIds();
         int viewRange = sendArticleRequest.getViewRange();
         String title = sendArticleRequest.getTitle();
@@ -66,7 +66,7 @@ public class ArticleController {
         if (StrUtil.isBlank(title) || title.length() > 100){
             throw new FormWallException("标题不能为空，并且要小于100字符");
         }
-        if (StrUtil.isBlank(article)){
+        if (StrUtil.isBlank(content)){
             throw new FormWallException("内容不能为空");
         }
         if (CollUtil.isNotEmpty(photoIds) && photoIds.size() > 9){
@@ -91,9 +91,10 @@ public class ArticleController {
             articlePojo.setSendUserId(user.getUserId());
             articlePojo.setSendUserName(user.getUserName());
             articlePojo.setCreateTime(LocalDateTime.now());
+            articlePojo.setTitle(title);
             articlePojo.setUpdateTime(LocalDateTime.now());
             articlePojo.setPhotoUrl(JSONUtil.toJsonStr(photoIds));
-            articlePojo.setContent(article);
+            articlePojo.setContent(content);
             articlePojo.setViewRange(viewRange);
             boolean tableResult = articleService.save(articlePojo);
 
@@ -109,7 +110,7 @@ public class ArticleController {
                 ArticleEsPojo articleEsPojo = new ArticleEsPojo();
                 articleEsPojo.setId(articlePojo.getId());
                 articleEsPojo.setTitle(title);
-                articleEsPojo.setContent(article);
+                articleEsPojo.setContent(content);
                 articleEsPojo.setPhotoUrl(articlePojo.getPhotoUrl());
                 articleEsPojo.setCreateTime(LocalDateTime.now());
                 articleEsPojo.setSendUserId(user.getUserId());

@@ -53,6 +53,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
         long snowflakeNextId = IdUtil.getSnowflakeNextId();
 
         UserPojo userPojo = new UserPojo();
+        userPojo.setId(IdUtil.getSnowflakeNextId());
         userPojo.setUserId(snowflakeNextId);
         userPojo.setUserName(registerRequest.getUserName());
         userPojo.setEmail(registerRequest.getEmail());

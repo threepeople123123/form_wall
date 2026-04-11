@@ -80,13 +80,13 @@ public class LoginController {
         userService.login(loginRequest,userPojo);
 
         // 塞入登录信息
-        StpUtil.login(userPojo.getUserId(),deviceType);
+        StpUtil.login(userPojo.getUserId());
 
         String tokenValue = StpUtil.getTokenValue();
 
         userUtil.setUser(tokenValue,userPojo);
 
-        return R.ok(LOGIN_SUCCESS.getMessage(),LOGIN_SUCCESS.getCode());
+        return R.ok(tokenValue,"登录成功");
     }
 
     @PostMapping("/register")
