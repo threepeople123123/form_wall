@@ -8,6 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.data.elasticsearch.annotations.DateFormat.date_hour_minute_second;
 
@@ -23,7 +24,7 @@ import static org.springframework.data.elasticsearch.annotations.DateFormat.date
 @Data
 public class ArticleEsPojo {
     @Id
-    private Long id;
+    private String id;
 
     @Field(name = "title",type = FieldType.Text,analyzer = "ik_max_word")
     @Schema(description = "标题")
@@ -48,6 +49,10 @@ public class ArticleEsPojo {
     @Schema(description = "创建时间")
     @Field(name = "createTime",type = FieldType.Date,format = date_hour_minute_second,pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
+
+    @Schema(description = "标签")
+    @Field(name = "tag",type = FieldType.Keyword)
+    private List<String> tag;
 
     @Schema(description = "更新时间")
     @Field(name = "updateTime",type = FieldType.Date,format = date_hour_minute_second,pattern = "yyyy-MM-dd HH:mm:ss")

@@ -1,7 +1,9 @@
 package com.wj.future.campus.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -11,6 +13,7 @@ import com.wj.future.campus.annotation.AuthIsLogin;
 import com.wj.future.campus.entity.es.po.ArticleEsPojo;
 import com.wj.future.campus.entity.pojo.ArticlePojo;
 import com.wj.future.campus.entity.pojo.FilePojo;
+import com.wj.future.campus.entity.pojo.TagPojo;
 import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.request.SendArticleRequest;
@@ -32,6 +35,7 @@ import org.typesense.model.SearchParameters;
 import org.typesense.model.SearchResult;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +66,8 @@ public class ArticleController {
         List<String> photoIds = sendArticleRequest.getPhotoIds();
         int viewRange = sendArticleRequest.getViewRange();
         String title = sendArticleRequest.getTitle();
+        List<TagPojo> tags = sendArticleRequest.getTags();
+
 
         if (StrUtil.isBlank(title) || title.length() > 100){
             throw new FormWallException("标题不能为空，并且要小于100字符");
@@ -108,7 +114,7 @@ public class ArticleController {
             if (tableResult) {
 
                 ArticleEsPojo articleEsPojo = new ArticleEsPojo();
-                articleEsPojo.setId(articlePojo.getId());
+                articleEsPojo.setId(articlePojo.getId().toString());
                 articleEsPojo.setTitle(title);
                 articleEsPojo.setContent(content);
                 articleEsPojo.setPhotoUrl(articlePojo.getPhotoUrl());
@@ -122,7 +128,18 @@ public class ArticleController {
                 articleEsPojo.setLikeCount(0);
                 articleEsPojo.setHeat(0);
 
-                Map<String, Object> articleEsPojoToMap = BeanUtil.beanToMap(articleEsPojo);
+
+
+                Map<String, Object> articleEsPojoToMap = BeanUtil.beanToMap(articleEsPojo, new LinkedHashMap<>(),
+                        CopyOptions.create().setFieldValueEditor((fieldName, fieldValue) -> {
+                            // 如果字段值是 LocalDateTime 类型，将其转换为字符串或时间戳
+                            if (fieldValue instanceof LocalDateTime) {
+                                // 方案 A：转为格式化字符串 (Typesense 易读)
+                                return DateUtil.format((LocalDateTime) fieldValue, "yyyy-MM-dd HH:mm:ss");
+                            }
+                            return fieldValue;
+                        })
+                );
                 try {
                     typesenseClient.collections("article_index").documents().create(articleEsPojoToMap);
                 } catch (Exception e) {

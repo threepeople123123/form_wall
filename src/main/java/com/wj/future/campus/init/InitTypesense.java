@@ -34,7 +34,7 @@ public class InitTypesense implements CommandLineRunner {
 
             // 过滤与排序字段
             fields.add(new Field().name("viewRange").type("int32").facet(true));
-            fields.add(new Field().name("schoolId").type("string").facet(true)); // 假设这是你过滤用的
+            fields.add(new Field().name("schoolId").type("string").facet(true));
             fields.add(new Field().name("schoolName").type("string").facet(true));
 
             // 时间字段 (建议转为 Unix 时间戳存储)
@@ -42,7 +42,7 @@ public class InitTypesense implements CommandLineRunner {
 
             // 数组字段
             fields.add(new Field().name("photoUrl").type("string[]").index(false).optional(true));
-            fields.add(new Field().name("tag").type("string[]").facet(true));
+            fields.add(new Field().name("tag").type("string[]").facet(true).optional(true));
 
             // 数值权重字段
             fields.add(new Field().name("likeCount").type("int32").sort(true));
