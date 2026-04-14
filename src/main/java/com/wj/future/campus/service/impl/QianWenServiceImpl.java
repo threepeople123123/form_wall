@@ -16,6 +16,7 @@ import com.wj.future.campus.entity.nosql.UserToBotConversation;
 import com.wj.future.campus.producer.SendMessageCallbackImpl;
 import com.wj.future.campus.properties.ApiKeyProperties;
 import com.wj.future.campus.service.AiService;
+import dev.ai4j.openai4j.chat.UserMessage;
 import io.reactivex.Flowable;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -71,16 +73,44 @@ public class QianWenServiceImpl<T> implements AiService<T> {
         SseEmitter sseEmitter = new SseEmitter();
         new Thread(() -> {
             try {
-                Generation gen = new Generation();
+
+                List<Message> messages = new ArrayList<>();
+
+                List<UserToBotConversation> userToBotConversations = new ArrayList<>();
+
                 Message systemMsg = Message.builder()
                         .role(Role.SYSTEM.getValue())
                         .content("校园助手，你可以帮人搜帖子，解答各种问题")
                         .reasoningContent(knowledgeDoc)
                         .build();
+                messages.add(systemMsg);
+
+                if (CollUtil.isNotEmpty(history)){
+                    for (T t : history) {
+                        if (t instanceof History source){
+                            Message userMsg = Message.builder()
+                                    .role(Role.USER.getValue())
+                                    .content(source.user)
+                                    .build();
+                            Message botMsg = Message.builder()
+                                    .role(Role.ASSISTANT.getValue())
+                                    .content(source.bot)
+                                    .build();
+                            messages.add(userMsg);
+                            messages.add(botMsg);
+                            UserToBotConversation userToBotConversation = new UserToBotConversation();
+                            userToBotConversation.setBot(source.bot);
+                            userToBotConversation.setUser(source.user);
+                            userToBotConversations.add(userToBotConversation);
+                        }
+                    }
+                }
+
                 Message userMsg = Message.builder()
                         .role(Role.USER.getValue())
                         .content(msg)
                         .build();
+                messages.add(userMsg);
 
                 List<History> historyList = null;
                 if (CollUtil.isNotEmpty(history)){
@@ -96,13 +126,14 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         // 若没有配置环境变量，请用阿里云百炼API Key将下行替换为：.apiKey("sk-xxx")
                         .apiKey(apiKeyProperties.getQianWenApiKey())
                         // 模型列表：https://help.aliyun.com/model-studio/getting-started/models
-                        .model("qwen-plus")
+                        .model("tongyi-xiaomi-analysis-pro")
                         .history(historyList)
-                        .messages(Arrays.asList(systemMsg, userMsg))
+                        .messages(messages)
                         .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                         .incrementalOutput(true)
                         .build();
 
+                Generation gen = new Generation();
                 Flowable<GenerationResult> result = gen.streamCall(param);
                 StringBuffer aiReply = new StringBuffer();
                 result.blockingForEach(res -> {
@@ -121,15 +152,20 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         sseEmitter.completeWithError(e);
                     }
                 });
+
                 // 对话信息穿入redis
                 UserToBotConversation userToBotConversation = new UserToBotConversation();
                 userToBotConversation.setBot(aiReply.toString());
                 userToBotConversation.setUser(msg);
                 userToBotConversation.setConversationId(conversationId);
 
-                //发送mq，落库
+                userToBotConversations.add(userToBotConversation);
+                // 截取最后十论对话
+                userToBotConversations = userToBotConversations.subList(Math.max(userToBotConversations.size() - 10, 0), userToBotConversations.size());
+
+                //todo：后期可以改成rabbitmq
 //                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));
-                redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversation));
+                redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversations));
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {
                 throw new RuntimeException(e);
