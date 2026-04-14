@@ -1,5 +1,6 @@
 package com.wj.future.campus.entity.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -35,6 +36,7 @@ public class ArticleResponse {
     private Long sendUserId;
 
     @Schema(description = "创建时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private LocalDateTime createTime;
 
     @Schema(description = "图片地址")

@@ -7,6 +7,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wj.future.campus.annotation.AuthIsLogin;
@@ -24,6 +25,7 @@ import com.wj.future.campus.service.ArticleService;
 import com.wj.future.campus.service.FileService;
 import com.wj.future.campus.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +44,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/article")
 public class ArticleController {
+
+
+    public static final Logger logger = org.slf4j.LoggerFactory.getLogger(ArticleController.class);
 
     @Autowired
     private UserUtil userUtil;
@@ -168,7 +173,7 @@ public class ArticleController {
                 throw new FormWallException("请输入完整学校名称");
             }
         }
-        try {
+       /* try {
             SearchParameters searchParameters = new SearchParameters()
                     // 对应 ES 的 should (title / content)
                     .q(articleRequest.getQuery())
@@ -212,10 +217,34 @@ public class ArticleController {
             }
 
             return R.ok(articleResponsePage);
-        } catch (Exception e) {
+        } catch (Exception e) {*/
 
             // 查询数据库
-            throw new FormWallException("查询失败");
-        }
+            try {
+                LambdaQueryWrapper<ArticlePojo> qw = new LambdaQueryWrapper<>();
+                qw.like(StrUtil.isNotBlank(articleRequest.getQuery()),ArticlePojo::getTitle, articleRequest.getQuery());
+                qw.like(StrUtil.isNotBlank(articleRequest.getQuery()),ArticlePojo::getContent, articleRequest.getQuery());
+                qw.eq(ArticlePojo::getViewRange, String.valueOf(viewRange));
+                qw.eq(StrUtil.isNotBlank(schoolId),ArticlePojo::getSchoolId, schoolId);
+                qw.eq(StrUtil.isNotBlank(schoolName),ArticlePojo::getSchoolName, schoolName);
+                Page<ArticlePojo> articlePojoPage = articleService.page(new Page<>(articleRequest.getPageNum(), articleRequest.getPageSize()), qw);
+                List<ArticlePojo> records = articlePojoPage.getRecords();
+
+                Page<ArticleResponse> articleResponsePage = new Page<>(
+                        articleRequest.getPageNum(),
+                        articleRequest.getPageSize(),
+                        articlePojoPage.getTotal() // 总命中数
+                );
+
+                if (CollUtil.isNotEmpty(records)){
+                    List<ArticleResponse> articleResponses = BeanUtil.copyToList(records, ArticleResponse.class);
+                    articleResponsePage.setRecords(articleResponses);
+                }
+                return R.ok(articleResponsePage);
+            }catch (Exception exception){
+                logger.error("{}",exception);
+                throw new FormWallException("查询失败");
+            }
+//        }
     }
 }
