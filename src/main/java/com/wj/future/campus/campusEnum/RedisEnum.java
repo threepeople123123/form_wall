@@ -10,7 +10,8 @@ package com.wj.future.campus.campusEnum;
  */
 public enum RedisEnum {
     //构造枚举
-    USER_BOT_TO_CONVERSATION("future:campus:user:to:ai");
+    USER_BOT_TO_CONVERSATION("future:campus:user:to:ai")
+    ,ARTICLE_DETAIL("future:campus:article:detail");
 
     private final String key;
 

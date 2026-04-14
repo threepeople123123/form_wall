@@ -1,5 +1,6 @@
 package com.wj.future.campus.entity.request;
 
+import com.wj.future.campus.entity.pojo.FilePojo;
 import com.wj.future.campus.entity.pojo.TagPojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -22,5 +23,5 @@ public class SendArticleRequest {
     private List<TagPojo> tags;
 
     @Schema(description = "图片地址")
-    private List<String> photoIds;
+    private List<FilePojo> photoIds;
 }

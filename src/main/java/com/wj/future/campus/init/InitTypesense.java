@@ -39,6 +39,7 @@ public class InitTypesense implements CommandLineRunner {
 
             // 时间字段 (建议转为 Unix 时间戳存储)
             fields.add(new Field().name("createTime").type("int64").sort(true));
+            fields.add(new Field().name("updateTime").type("int64").sort(true).optional(true));
 
             // 数组字段
             fields.add(new Field().name("photoUrl").type("string[]").index(false).optional(true));

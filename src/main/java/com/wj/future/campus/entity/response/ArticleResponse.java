@@ -1,6 +1,7 @@
 package com.wj.future.campus.entity.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.wj.future.campus.entity.pojo.FilePojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -40,7 +41,7 @@ public class ArticleResponse {
     private LocalDateTime createTime;
 
     @Schema(description = "图片地址")
-    private List<String> photoUrl;
+    private List<FilePojo> photoUrl;
 
     @Schema(description = "点赞数量")
     private int likeCount;
@@ -50,4 +51,13 @@ public class ArticleResponse {
 
     @Schema(description = "标签")
     private List<String> tag;
+
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
+
+    @Schema(description = "学校id")
+    private String schoolId;
+
+    @Schema(description = "学校名称")
+    private String schoolName;
 }

@@ -5,6 +5,7 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -24,14 +25,13 @@ import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.ArticleService;
 import com.wj.future.campus.service.FileService;
 import com.wj.future.campus.util.UserUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.typesense.api.Client;
 import org.typesense.model.SearchParameters;
 import org.typesense.model.SearchResult;
@@ -40,6 +40,9 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.wj.future.campus.campusEnum.RedisEnum.ARTICLE_DETAIL;
 
 @RestController
 @RequestMapping("/article")
@@ -63,12 +66,15 @@ public class ArticleController {
     @Autowired
     private FileService fileService;
 
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
+
 
     @AuthIsLogin
     @PostMapping("/publishArticle")
     public R<String> publish(@RequestBody SendArticleRequest sendArticleRequest , HttpServletRequest request) throws FormWallException {
         String content = sendArticleRequest.getContent();
-        List<String> photoIds = sendArticleRequest.getPhotoIds();
+        List<FilePojo> photoIds = sendArticleRequest.getPhotoIds();
         int viewRange = sendArticleRequest.getViewRange();
         String title = sendArticleRequest.getTitle();
         List<TagPojo> tags = sendArticleRequest.getTags();
@@ -132,21 +138,27 @@ public class ArticleController {
                 articleEsPojo.setSchoolName(user.getSchoolName());
                 articleEsPojo.setLikeCount(0);
                 articleEsPojo.setHeat(0);
-
-
+                articleEsPojo.setTag(tags.stream().map(TagPojo::getTagName).toList());
+                articleEsPojo.setSchoolId("test");
+                articleEsPojo.setSchoolName("test");
 
                 Map<String, Object> articleEsPojoToMap = BeanUtil.beanToMap(articleEsPojo, new LinkedHashMap<>(),
                         CopyOptions.create().setFieldValueEditor((fieldName, fieldValue) -> {
-                            // 如果字段值是 LocalDateTime 类型，将其转换为字符串或时间戳
+                            // 如果字段值是 LocalDateTime 类型,将其转换为 Unix 时间戳(秒)
                             if (fieldValue instanceof LocalDateTime) {
-                                // 方案 A：转为格式化字符串 (Typesense 易读)
-                                return DateUtil.format((LocalDateTime) fieldValue, "yyyy-MM-dd HH:mm:ss");
+                                // Typesense 要求 int64 类型的时间戳
+                                return ((LocalDateTime) fieldValue).atZone(java.time.ZoneId.systemDefault()).toInstant().getEpochSecond();
                             }
                             return fieldValue;
                         })
                 );
                 try {
                     typesenseClient.collections("article_index").documents().create(articleEsPojoToMap);
+
+                    // 塞入redis，设置一天过期时间
+                    ArticleResponse articleResponse = BeanUtil.copyProperties(articlePojo, ArticleResponse.class);
+                    articleResponse.setPhotoUrl(photoIds);
+                    redisTemplate.opsForValue().set(ARTICLE_DETAIL.getKey()+":"+articlePojo.getId(),JSONUtil.toJsonStr(articleResponse),1, TimeUnit.DAYS);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -242,9 +254,31 @@ public class ArticleController {
                 }
                 return R.ok(articleResponsePage);
             }catch (Exception exception){
-                logger.error("{}",exception);
+                logger.error("报错信息：{}",exception);
                 throw new FormWallException("查询失败");
             }
 //        }
+    }
+
+    /*
+     查询文章详情
+     */
+    @GetMapping("/getById/{id}")
+    public R<ArticleResponse> getById(@PathVariable Long id) throws FormWallException {
+        String redisDetail = (String)redisTemplate.opsForHash().get(ARTICLE_DETAIL.getKey(), id);
+        if (StrUtil.isNotBlank(redisDetail)){
+            ArticleResponse articleResponse = JSONUtil.toBean(redisDetail, ArticleResponse.class);
+            return R.ok(articleResponse);
+        }
+
+        // 增加
+        ArticlePojo articlePojo = articleService.getById(id);
+        if (ObjectUtil.isEmpty(articlePojo)){
+            throw new FormWallException("文章不存在");
+        }
+        ArticleResponse articleResponse = BeanUtil.copyProperties(articlePojo, ArticleResponse.class);
+        // 塞入redis
+        redisTemplate.opsForValue().set(ARTICLE_DETAIL.getKey()+":"+articlePojo.getId(),JSONUtil.toJsonStr(articleResponse),1, TimeUnit.DAYS);
+        return R.ok(articleResponse);
     }
 }

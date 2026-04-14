@@ -1,15 +1,10 @@
 package com.wj.future.campus.controller;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.KnnQuery;
-import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.alibaba.dashscope.common.History;
-import com.wj.future.campus.entity.es.po.KnowledgeDoc;
 import com.wj.future.campus.entity.nosql.UserToBotConversation;
 import com.wj.future.campus.entity.request.AiChatRequest;
 import com.wj.future.campus.exception.FormWallException;
@@ -17,13 +12,15 @@ import com.wj.future.campus.service.AiService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.wj.future.campus.campusEnum.RedisEnum.USER_BOT_TO_CONVERSATION;
 
@@ -39,9 +36,6 @@ public class AiController {
 
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
-
-    @Autowired
-    private ElasticsearchClient elasticsearchClient;
 
     @PostMapping("/chat")
     public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest) throws IOException, FormWallException {
