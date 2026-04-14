@@ -160,8 +160,6 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 userToBotConversation.setConversationId(conversationId);
 
                 userToBotConversations.add(userToBotConversation);
-                // 截取最后十论对话
-                userToBotConversations = userToBotConversations.subList(Math.max(userToBotConversations.size() - 10, 0), userToBotConversations.size());
 
                 //todo：后期可以改成rabbitmq
 //                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));

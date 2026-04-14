@@ -55,6 +55,7 @@ public class AiController {
         List<History> histories = new ArrayList<>();
         if (StrUtil.isNotBlank(redisHistory)){
             List<UserToBotConversation> userToBotConversations = JSONUtil.toList(redisHistory, UserToBotConversation.class);
+            userToBotConversations = userToBotConversations.subList(Math.max(userToBotConversations.size() - 10, 0), userToBotConversations.size());
             for (UserToBotConversation userToBotConversation : userToBotConversations) {
                 History history = History.builder().bot(userToBotConversation.getBot()).user(userToBotConversation.getUser()).build();
                 histories.add(history);
