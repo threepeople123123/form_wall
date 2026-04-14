@@ -265,7 +265,7 @@ public class ArticleController {
      */
     @GetMapping("/getById/{id}")
     public R<ArticleResponse> getById(@PathVariable Long id) throws FormWallException {
-        String redisDetail = (String)redisTemplate.opsForHash().get(ARTICLE_DETAIL.getKey(), id);
+        String redisDetail = (String)redisTemplate.opsForValue().get(ARTICLE_DETAIL.getKey()+ ":"+ id);
         if (StrUtil.isNotBlank(redisDetail)){
             ArticleResponse articleResponse = JSONUtil.toBean(redisDetail, ArticleResponse.class);
             return R.ok(articleResponse);
