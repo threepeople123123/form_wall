@@ -7,6 +7,8 @@ import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.request.AiConversationRequest;
 import com.wj.future.campus.properties.ApiKeyProperties;
 import com.wj.future.campus.service.AiService;
 import io.reactivex.Flowable;
@@ -42,13 +44,16 @@ public class ZhiPuServiceImpl<T> implements AiService<T> {
     /**
      * 通过流的方式进行返回
      *
-     * @param msg            用户发送的消息
-     * @param knowledgeDoc
-     * @param conversationId
+     * @param aiConversationRequest ai对话所需参数
      * @return sse链接推送的ai生成内容
      */
     @Override
-    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc, String conversationId) {
+    public SseEmitter chatForSEE(AiConversationRequest aiConversationRequest) {
+        String conversationId = aiConversationRequest.getConversationId();
+        String msg = aiConversationRequest.getMsg();
+        List<T> histories = aiConversationRequest.getHistories();
+        String knowledgeDoc = aiConversationRequest.getKnowledgeDoc();
+        UserPojo user = aiConversationRequest.getUserPojo();
 
         SseEmitter sseEmitter = new SseEmitter();
         new Thread(() -> {

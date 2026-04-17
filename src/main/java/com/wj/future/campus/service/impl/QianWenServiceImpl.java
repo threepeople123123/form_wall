@@ -1,8 +1,8 @@
 package com.wj.future.campus.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
-import co.elastic.clients.elasticsearch.core.health_report.MasterIsStableIndicatorClusterFormationNode;
 import com.alibaba.dashscope.aigc.generation.Generation;
 import com.alibaba.dashscope.aigc.generation.GenerationParam;
 import com.alibaba.dashscope.aigc.generation.GenerationResult;
@@ -13,12 +13,12 @@ import com.alibaba.dashscope.embeddings.*;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.wj.future.campus.entity.nosql.UserToBotConversation;
-import com.wj.future.campus.producer.SendMessageCallbackImpl;
+import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.request.AiConversationRequest;
+import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.properties.ApiKeyProperties;
 import com.wj.future.campus.service.AiService;
-import dev.ai4j.openai4j.chat.UserMessage;
 import io.reactivex.Flowable;
-import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,9 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     @Autowired
     private RedisTemplate<String,Object> redisTemplateConfig;
 
+    @Autowired
+    private RabbitMQProducer rabbitMQProducer;
+
 //    @Autowired
 //    private RocketMQTemplate rocketMQTemplate;
 
@@ -63,13 +66,16 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     /**
      * 通过流的方式进行返回
      *
-     * @param msg            用户发送的消息
-     * @param knowledgeDoc   知识库检索内容
-     * @param conversationId 会话id
+     * @param aiConversationRequest ai对话参数
      * @return sse链接推送的ai生成内容
      */
     @Override
-    public SseEmitter chatForStream(String msg, List<T> history, String knowledgeDoc, String conversationId) {
+    public SseEmitter chatForSEE(AiConversationRequest aiConversationRequest) {
+        String conversationId = aiConversationRequest.getConversationId();
+        String msg = aiConversationRequest.getMsg();
+        String knowledgeDoc = aiConversationRequest.getKnowledgeDoc();
+        List<T> history = aiConversationRequest.getHistories();
+        UserPojo userPojo = aiConversationRequest.getUserPojo();
         SseEmitter sseEmitter = new SseEmitter();
         new Thread(() -> {
             try {
@@ -158,12 +164,17 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 userToBotConversation.setBot(aiReply.toString());
                 userToBotConversation.setUser(msg);
                 userToBotConversation.setConversationId(conversationId);
+                if (ObjectUtil.isNotEmpty(userPojo)){
+                    userToBotConversation.setUserId(userPojo.getUserId());
+                }
 
                 userToBotConversations.add(userToBotConversation);
 
-                //todo：后期可以改成rabbitmq
-//                rocketMQTemplate.asyncSend("campus-ai-conversatio", JSONUtil.toJsonStr(userToBotConversation), new SendMessageCallbackImpl(rocketMQTemplate));
+                // 先发送mq，防止redis数据丢失
+                rabbitMQProducer.sendCampusAiConversationMessage(JSONUtil.toJsonStr(userToBotConversation));
+
                 redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversations));
+
                 sseEmitter.complete();
             } catch (NoApiKeyException | InputRequiredException e) {
                 throw new RuntimeException(e);

@@ -25,6 +25,7 @@ import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.ArticleService;
 import com.wj.future.campus.service.FileService;
 import com.wj.future.campus.util.UserUtil;
+import dev.langchain4j.agent.tool.Tool;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -176,6 +177,7 @@ public class ArticleController {
      * @exception FormWallException 异常
      */
     @PostMapping("/pageList")
+    @Tool("根据学校名称，学校id，查询范围，标题，内容，标签，页码，每页数量进行查询")
     public R<Page<ArticleResponse>> pageList(@RequestBody ArticleRequest articleRequest) throws FormWallException {
         int viewRange = articleRequest.getViewRange();
         String schoolId = articleRequest.getSchoolId();
@@ -234,8 +236,11 @@ public class ArticleController {
             // 查询数据库
             try {
                 LambdaQueryWrapper<ArticlePojo> qw = new LambdaQueryWrapper<>();
-                qw.like(StrUtil.isNotBlank(articleRequest.getQuery()),ArticlePojo::getTitle, articleRequest.getQuery());
-                qw.like(StrUtil.isNotBlank(articleRequest.getQuery()),ArticlePojo::getContent, articleRequest.getQuery());
+                qw.and(StrUtil.isNotBlank(articleRequest.getQuery()),queryWrapper ->
+                        queryWrapper.like(ArticlePojo::getTitle, articleRequest.getQuery())
+                                .or()
+                                .like(ArticlePojo::getContent, articleRequest.getQuery()));
+
                 qw.eq(ArticlePojo::getViewRange, String.valueOf(viewRange));
                 qw.eq(StrUtil.isNotBlank(schoolId),ArticlePojo::getSchoolId, schoolId);
                 qw.eq(StrUtil.isNotBlank(schoolName),ArticlePojo::getSchoolName, schoolName);

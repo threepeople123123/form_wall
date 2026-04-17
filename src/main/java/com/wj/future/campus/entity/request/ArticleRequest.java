@@ -22,7 +22,7 @@ public class ArticleRequest {
     @Schema(description = "学校id")
     private String schoolId;
 
-    @Schema(description = "查看范围,1:全部，2:学校")
+    @Schema(description = "查看范围,1:全部，2:学校,如果查询范围为2，schoolId和schoolName不能为空")
     private int viewRange =1;
 
     @Schema(description = "标题，内容等")

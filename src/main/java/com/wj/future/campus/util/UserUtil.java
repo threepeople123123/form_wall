@@ -49,6 +49,6 @@ public class UserUtil {
             String userJson = (String)redisTemplate.opsForHash().get(USER_KEY, token);
             return JSONUtil.toBean(userJson, UserPojo.class);
         }
-        throw new FormWallException("用户未登录");
+        throw new FormWallException("请先登录");
     }
 }

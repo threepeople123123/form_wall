@@ -1,5 +1,8 @@
 package com.wj.future.campus.service;
 
+import com.wj.future.campus.entity.request.AiConversationRequest;
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -16,12 +19,10 @@ public interface AiService<T> {
     /**
      * 流式返回
      *
-     * @param msg            用户小心
-     * @param knowledgeDoc
-     * @param conversationId
+     * @param aiConversationRequest     对话信息等等
      * @return sse返回的消息
      */
-    SseEmitter chatForStream(String msg, List<T> histroy, String knowledgeDoc, String conversationId);
+    SseEmitter chatForSEE(AiConversationRequest aiConversationRequest);
 
     /**
      * 模型向量化

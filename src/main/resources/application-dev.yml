@@ -63,6 +63,23 @@ spring:
     serialization:
       # 建议禁用这个，否则日期会变成一串数字数组 [2023,10,27...]
       write-dates-as-timestamps: false
+  # RabbitMQ 配置
+  rabbitmq:
+    host: 8.140.219.233  # RabbitMQ 服务器地址
+    port: 5672       # RabbitMQ 端口
+    username: admin  # 用户名
+    password: password123  # 密码
+    virtual-host: /  # 虚拟主机
+    listener:
+      simple:
+        # 消费者最小线程数
+        concurrency: 5
+        # 消费者最大线程数
+        max-concurrency: 10
+        # 手动确认消息
+        acknowledge-mode: manual
+        # 每次从队列中取出的消息数
+        prefetch: 1
 ############## Sa-Token 配置 (文档: https://sa-token.cc) ##############
 sa-token:
   # token 名称（同时也是 cookie 名称）
@@ -87,6 +104,7 @@ knife4j:
 ai:
   qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
   zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
+  tongyi-xiaomi-analysis-pro: tongyi-xiaomi-analysis-pro
 #rocketmq:
 #  name-server: 192.168.48.100:9876
 #  producer:
@@ -116,6 +134,8 @@ minio:
 logging:
   level:
     com.wj.future.campus.mapper: debug
+    # LangChain4j 日志 - 用于调试工具调用
+    dev.langchain4j: DEBUG
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

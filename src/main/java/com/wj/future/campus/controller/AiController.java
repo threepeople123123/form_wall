@@ -6,10 +6,16 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.KnnQuery;
 import com.alibaba.dashscope.common.History;
 import com.wj.future.campus.entity.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
+import com.wj.future.campus.entity.request.AiConversationRequest;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.service.AiService;
+import com.wj.future.campus.util.UserUtil;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +33,7 @@ import static com.wj.future.campus.campusEnum.RedisEnum.USER_BOT_TO_CONVERSATION
 @RestController
 @RequestMapping("/ai")
 public class AiController {
+    public static final Logger logger = LoggerFactory.getLogger(AiController.class);
 
     @Resource(name = "zhiPuServiceImpl")
     private AiService zhiPuService;
@@ -37,8 +44,20 @@ public class AiController {
     @Resource
     private RedisTemplate<String,Object> redisTemplate;
 
+    @Autowired
+    private UserUtil userUtil;
+
     @PostMapping("/chat")
-    public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest) throws IOException, FormWallException {
+    public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest, HttpServletRequest request) throws IOException, FormWallException {
+
+        UserPojo user = null;
+        try {
+            user = userUtil.getUser(request);
+        }catch (Exception e){
+            logger.error("用户没有登录");
+        }
+
+
         String msg = aiChatRequest.getMsg();
         String conversationId = aiChatRequest.getConversationId();
         if (StrUtil.isBlank(msg) && StrUtil.isBlank(conversationId)) {
@@ -81,7 +100,13 @@ public class AiController {
 //            knowledgeDoc = knowledgeDocs.stream().map(KnowledgeDoc::getContent).collect(Collectors.joining(","));
 //        }
 
+        AiConversationRequest<History> aiConversationRequest = new AiConversationRequest<>();
+        aiConversationRequest.setConversationId(conversationId);
+        aiConversationRequest.setMsg(msg);
+        aiConversationRequest.setKnowledgeDoc(knowledgeDoc);
+        aiConversationRequest.setUserPojo(user);
+        aiConversationRequest.setHistories(histories);
         // 使用流式调用方法
-        return qianWenService.chatForStream(msg,histories, knowledgeDoc,conversationId);
+        return qianWenService.chatForSEE(aiConversationRequest);
     }
 }

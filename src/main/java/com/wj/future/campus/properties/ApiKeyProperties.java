@@ -12,4 +12,6 @@ public class ApiKeyProperties {
     private String qianWenApiKey;
 
     private String zhiPuApiKey;
+
+    private String tongyiXiaomiAnalysisPro;
 }
