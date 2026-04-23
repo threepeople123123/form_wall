@@ -1,10 +1,9 @@
 package com.wj.future.campus.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
-import com.wj.future.campus.annotation.AuthIsLogin;
+import com.wj.future.campus.checkLogin.AuthIsLogin;
 import com.wj.future.campus.entity.pojo.CommentArticlePojo;
 import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.CommentArticleRequest;

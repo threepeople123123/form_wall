@@ -23,5 +23,5 @@ public class SendArticleRequest {
     private List<TagPojo> tags;
 
     @Schema(description = "图片地址")
-    private List<FilePojo> photoIds;
+    private List<FilePojo> imageUrls;
 }

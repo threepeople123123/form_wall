@@ -2,6 +2,7 @@ package com.wj.future.campus.entity.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,4 +44,8 @@ public class FilePojo {
 
     @TableField("create_time")
     private LocalDateTime createTime;
+
+    @TableLogic
+    @TableField("is_delete")
+    private boolean isDelete;
 }

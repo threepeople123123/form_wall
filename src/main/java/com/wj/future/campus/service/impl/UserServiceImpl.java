@@ -37,7 +37,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
 
         String md5Security = MySecurityUtil.md5Security(loginRequest.getPassword());
         if (userPojo.getPassword().equals(md5Security)){
-            return userPojo.getUserId();
+            return userPojo.getId();
         }
         throw new FormWallException("密码错误", HttpStatus.HTTP_INTERNAL_ERROR);
     }
@@ -53,13 +53,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserPojo> implement
         long snowflakeNextId = IdUtil.getSnowflakeNextId();
 
         UserPojo userPojo = new UserPojo();
-        userPojo.setId(IdUtil.getSnowflakeNextId());
-        userPojo.setUserId(snowflakeNextId);
-        userPojo.setUserName(registerRequest.getUserName());
+        userPojo.setId(snowflakeNextId);
+        userPojo.setName(registerRequest.getUserName());
         userPojo.setEmail(registerRequest.getEmail());
         userPojo.setPassword(MySecurityUtil.md5Security(registerRequest.getPassword()));
         userPojo.setCreateTime(LocalDateTime.now());
         userPojo.setUpdateTime(LocalDateTime.now());
+        userPojo.setDelete(false);
         save(userPojo);
 
         return userPojo;

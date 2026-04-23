@@ -1,4 +1,4 @@
-package com.wj.future.campus.annotation;
+package com.wj.future.campus.checkLogin;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

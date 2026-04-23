@@ -1,9 +1,6 @@
 package com.wj.future.campus.entity.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -51,4 +48,8 @@ public class CommentArticlePojo {
     @Schema(description = "图片地址")
     @TableField("photo_url")
     private String photoUrl;
+
+    @TableLogic
+    @TableField("is_delete")
+    private boolean isDelete;
 }

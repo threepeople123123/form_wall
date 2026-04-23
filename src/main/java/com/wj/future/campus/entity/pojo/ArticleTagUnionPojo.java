@@ -1,6 +1,7 @@
 package com.wj.future.campus.entity.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -27,4 +28,8 @@ public class ArticleTagUnionPojo {
     @TableField("tag_id")
     @Schema(description = "标签id")
     private String tagId;
+
+    @TableLogic
+    @TableField("is_delete")
+    private boolean isDelete;
 }

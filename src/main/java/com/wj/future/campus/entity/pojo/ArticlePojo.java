@@ -2,6 +2,7 @@ package com.wj.future.campus.entity.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
  * @author wangj
  * @className ArticlePojo
  * @date 2026/3/2
- * @description 内容表
+ * @description 文章表
  */
 @Data
 @TableName("article")
@@ -69,4 +70,8 @@ public class ArticlePojo {
     @TableField("heat")
     @Schema(description = "热度")
     private int heat;
+
+    @TableLogic
+    @TableField("is_delete")
+    private boolean isDelete;
 }

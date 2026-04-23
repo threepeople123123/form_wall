@@ -11,6 +11,7 @@ import com.wj.future.campus.util.TokenBucketLimiter;
 import com.wj.future.campus.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,5 +67,11 @@ public class ObjectController {
 //        if (pass){
             fileService.download(Long.valueOf(fileId),response);
 //        }
+    }
+
+    @GetMapping("/delete/{fileId}")
+    public R<String> delete(@PathVariable("fileId")String fileId){
+        fileService.removeById(fileId);
+        return R.okMsg("删除成功");
     }
 }

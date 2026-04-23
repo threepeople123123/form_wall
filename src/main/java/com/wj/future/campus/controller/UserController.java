@@ -2,8 +2,10 @@ package com.wj.future.campus.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.wj.future.campus.annotation.AuthIsLogin;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.wj.future.campus.checkLogin.AuthIsLogin;
 import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.request.UserUpdateRequest;
 import com.wj.future.campus.entity.response.UserinfoResponse;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.result.R;
@@ -41,16 +43,21 @@ public class UserController {
      * @throws FormWallException 自定义异常
      */
     @AuthIsLogin
-    @GetMapping("/queryInfo")
+    @GetMapping("/info")
     public R<UserinfoResponse> queryUserinfo(HttpServletRequest request) throws FormWallException {
         UserPojo user = userUtil.getUser(request);
         UserinfoResponse userinfoResponse = BeanUtil.copyProperties(user, UserinfoResponse.class);
+        userinfoResponse.setUserId(user.getId());
+        userinfoResponse.setUserName(user.getName());
         return R.ok(userinfoResponse);
     }
 
     @AuthIsLogin
     @PostMapping("/update")
-    public R<String> update(){
+    public R<String> update(UserUpdateRequest userUpdateRequest, HttpServletRequest request) throws FormWallException {
+        UserPojo userPojo = userUtil.getUser(request);
+        BeanUtil.copyProperties(userUpdateRequest, userPojo);
+        userService.updateById(userPojo);
 
 
         return R.ok();

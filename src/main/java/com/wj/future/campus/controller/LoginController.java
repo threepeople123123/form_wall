@@ -80,7 +80,7 @@ public class LoginController {
         userService.login(loginRequest,userPojo);
 
         // 塞入登录信息
-        StpUtil.login(userPojo.getUserId());
+        StpUtil.login(userPojo.getId());
 
         String tokenValue = StpUtil.getTokenValue();
 
@@ -136,14 +136,14 @@ public class LoginController {
 
         // 判断邮箱和用户名是否存在，不能存在相同的用户名
         LambdaQueryWrapper<UserPojo> qw = new LambdaQueryWrapper<>();
-        qw.eq(UserPojo::getEmail,email).or().eq(UserPojo::getUserName,userName);
+        qw.eq(UserPojo::getEmail,email).or().eq(UserPojo::getName,userName);
         qw.last("limit 1");
         UserPojo userPojo = userService.getOne(qw);
         if (ObjectUtil.isNotEmpty(userPojo)){
             if (userPojo.getEmail().equals(email)){
                 throw new FormWallException("邮箱已存在");
             }
-            if (userPojo.getUserName().equals(userName)){
+            if (userPojo.getName().equals(userName)){
                 throw new FormWallException("用户名已存在");
             }
         }

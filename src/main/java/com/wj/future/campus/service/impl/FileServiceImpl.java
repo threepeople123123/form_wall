@@ -45,8 +45,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FilePojo> implement
 
         FilePojo filePojo = new FilePojo();
         filePojo.setId(fileId);
-        filePojo.setUserId(userPojo.getUserId());
-        filePojo.setUserName(userPojo.getUserName());
+        filePojo.setUserId(userPojo.getId());
+        filePojo.setUserName(userPojo.getName());
         filePojo.setDownloadUrl(downloadUrl);
         filePojo.setCreateTime(LocalDateTime.now());
         filePojo.setFileName(fileName);

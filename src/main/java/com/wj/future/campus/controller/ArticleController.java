@@ -3,7 +3,6 @@ package com.wj.future.campus.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -11,7 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.wj.future.campus.annotation.AuthIsLogin;
+import com.wj.future.campus.checkLogin.AuthIsLogin;
 import com.wj.future.campus.entity.es.po.ArticleEsPojo;
 import com.wj.future.campus.entity.pojo.ArticlePojo;
 import com.wj.future.campus.entity.pojo.FilePojo;
@@ -34,8 +33,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.typesense.api.Client;
-import org.typesense.model.SearchParameters;
-import org.typesense.model.SearchResult;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -75,7 +72,7 @@ public class ArticleController {
     @PostMapping("/publishArticle")
     public R<String> publish(@RequestBody SendArticleRequest sendArticleRequest , HttpServletRequest request) throws FormWallException {
         String content = sendArticleRequest.getContent();
-        List<FilePojo> photoIds = sendArticleRequest.getPhotoIds();
+        List<FilePojo> photoIds = sendArticleRequest.getImageUrls();
         int viewRange = sendArticleRequest.getViewRange();
         String title = sendArticleRequest.getTitle();
         List<TagPojo> tags = sendArticleRequest.getTags();
@@ -106,8 +103,8 @@ public class ArticleController {
 
         boolean result = Boolean.TRUE.equals(transactionTemplate.execute(transactionStatus -> {
             articlePojo.setId(IdUtil.getSnowflakeNextId());
-            articlePojo.setSendUserId(user.getUserId());
-            articlePojo.setSendUserName(user.getUserName());
+            articlePojo.setSendUserId(user.getId());
+            articlePojo.setSendUserName(user.getName());
             articlePojo.setCreateTime(LocalDateTime.now());
             articlePojo.setTitle(title);
             articlePojo.setUpdateTime(LocalDateTime.now());
@@ -131,8 +128,8 @@ public class ArticleController {
                 articleEsPojo.setContent(content);
                 articleEsPojo.setPhotoUrl(articlePojo.getPhotoUrl());
                 articleEsPojo.setCreateTime(LocalDateTime.now());
-                articleEsPojo.setSendUserId(user.getUserId());
-                articleEsPojo.setSendUserName(user.getUserName());
+                articleEsPojo.setSendUserId(user.getId());
+                articleEsPojo.setSendUserName(user.getName());
                 articleEsPojo.setUpdateTime(LocalDateTime.now());
                 articleEsPojo.setViewRange(viewRange);
                 articleEsPojo.setSchoolId(user.getSchoolId());
@@ -285,5 +282,40 @@ public class ArticleController {
         // 塞入redis
         redisTemplate.opsForValue().set(ARTICLE_DETAIL.getKey()+":"+articlePojo.getId(),JSONUtil.toJsonStr(articleResponse),1, TimeUnit.DAYS);
         return R.ok(articleResponse);
+    }
+
+    /**
+     * 查询用户发布的文章
+     * @param articleRequest 查询条件
+     * @param request 请求信息
+     * @return 文章列白哦
+     * @throws FormWallException 异常
+     */
+    @AuthIsLogin
+    @PostMapping("/pageListByUser")
+    public R<Page<ArticleResponse>> pageList(@RequestBody ArticleRequest articleRequest,HttpServletRequest request) throws FormWallException {
+
+        UserPojo userPojo = userUtil.getUser(request);
+
+        LambdaQueryWrapper<ArticlePojo> qw = new LambdaQueryWrapper<>();
+        qw.eq(ArticlePojo::getSendUserId,userPojo.getId());
+        qw.and(StrUtil.isNotBlank(articleRequest.getQuery()),queryWrapper ->
+                queryWrapper.like(ArticlePojo::getTitle, articleRequest.getQuery())
+                        .or()
+                        .like(ArticlePojo::getContent, articleRequest.getQuery()));
+        Page<ArticlePojo> articlePojoPage = articleService.page(new Page<>(articleRequest.getPageNum(), articleRequest.getPageSize()), qw);
+        List<ArticlePojo> records = articlePojoPage.getRecords();
+
+        Page<ArticleResponse> articleResponsePage = new Page<>(
+                articleRequest.getPageNum(),
+                articleRequest.getPageSize(),
+                articlePojoPage.getTotal() // 总命中数
+        );
+
+        if (CollUtil.isNotEmpty(records)){
+            List<ArticleResponse> articleResponses = BeanUtil.copyToList(records, ArticleResponse.class);
+            articleResponsePage.setRecords(articleResponses);
+        }
+        return R.ok(articleResponsePage);
     }
 }

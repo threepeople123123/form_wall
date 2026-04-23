@@ -19,8 +19,8 @@ public class UserinfoResponse {
     @Schema(description = "用户id")
     private Long userId;
 
-    @Schema(description = "手机号")
-    private String phone;
+    @Schema(description = "邮箱")
+    private String email;
 
     @Schema(description = "用户昵称")
     private String userName;
