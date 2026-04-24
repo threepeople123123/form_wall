@@ -1,13 +1,17 @@
 package com.wj.future.campus.aiTools;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class AllTools {
+
+    public static final Logger logger = LoggerFactory.getLogger(AllTools.class);
+
 
     @Autowired
     private List<ToolInterface> allTools;
