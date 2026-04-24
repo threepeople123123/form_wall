@@ -255,6 +255,36 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         }
                     }
                 });*/
+                GenerationParam secondParam = GenerationParam.builder()
+                        .apiKey(apiKeyProperties.getQianWenApiKey())
+                        .model(apiKeyProperties.getTongyiXiaomiAnalysisPro())
+                        .messages(messages)
+                        .resultFormat(GenerationParam.ResultFormat.MESSAGE)
+                        .incrementalOutput(true)
+                        .build();
+
+                Flowable<GenerationResult> secondResult = gen.streamCall(secondParam);
+
+                secondResult.blockingForEach(res -> {
+
+                    // 没有工具调用，直接返回内容
+                    String content = res.getOutput()
+                            .getChoices()
+                            .get(0)
+                            .getMessage()
+                            .getContent();
+
+
+                    if (content != null && !content.isEmpty()) {
+                        try {
+                            sseEmitter.send(content);
+                            aiReply.append(content);
+                            logger.info("消息：{}", content);
+                        } catch (IOException e) {
+                            sseEmitter.completeWithError(e);
+                        }
+                    }
+                });
 
                 // 对话信息穿入redis
                 UserToBotConversation userToBotConversation = new UserToBotConversation();
