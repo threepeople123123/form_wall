@@ -167,7 +167,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                 Flowable<GenerationResult> result = gen.streamCall(param);
                 StringBuffer aiReply = new StringBuffer();
 
-                result.blockingForEach(res -> {
+                /*result.blockingForEach(res -> {
                     // 检查是否有工具调用
                     if (res.getOutput().getChoices().get(0).getMessage().getToolCalls() != null &&
                             !res.getOutput().getChoices().get(0).getMessage().getToolCalls().isEmpty()) {
@@ -254,7 +254,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                             }
                         }
                     }
-                });
+                });*/
 
                 // 对话信息穿入redis
                 UserToBotConversation userToBotConversation = new UserToBotConversation();
