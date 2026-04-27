@@ -15,7 +15,6 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.alibaba.dashscope.tools.FunctionDefinition;
 import com.alibaba.dashscope.tools.ToolBase;
 import com.alibaba.dashscope.tools.ToolFunction;
-import com.wj.future.campus.aiTools.AiArticleTool;
 import com.wj.future.campus.aiTools.AllTools;
 import com.wj.future.campus.aiTools.ToolInterface;
 import com.wj.future.campus.entity.nosql.UserToBotConversation;
@@ -55,14 +54,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
     private RabbitMQProducer rabbitMQProducer;
 
     @Autowired
-    private AiArticleTool aiArticleTool;
-
-
-    @Autowired
     private AllTools allTools;
-
-//    @Autowired
-//    private RocketMQTemplate rocketMQTemplate;
 
 
 
@@ -99,7 +91,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
                 Message systemMsg = Message.builder()
                         .role(Role.SYSTEM.getValue())
-                        .content("你是校园助手,搜索帖子、查找校园文章等")
+                        .content("你是校园助手,你可以帮助用户搜索帖子、查找校园文章等")
                         .reasoningContent(knowledgeDoc)
                         .build();
                 messages.add(systemMsg);
