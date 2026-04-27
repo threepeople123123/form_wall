@@ -26,7 +26,7 @@ public class AiArticleTool implements  ToolInterface {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static final String DESCRIPTION = "搜索校园帖子，可以根据关键词、标签等条件查找相关文章";
+    public static final String DESCRIPTION = "搜索校园文章，可以根据用户输入的关键字搜索文章";
 
 
     public String getName(){
@@ -37,7 +37,7 @@ public class AiArticleTool implements  ToolInterface {
         // keyword 参数定义
         JsonObject keyword = new JsonObject();
         keyword.addProperty("type", "string");
-        keyword.addProperty("description", "搜索关键词");
+        keyword.addProperty("description", "搜索文章关键词");
 
         // properties
         JsonObject properties = new JsonObject();
@@ -51,7 +51,6 @@ public class AiArticleTool implements  ToolInterface {
         // required
         JsonArray required = new JsonArray();
         required.add("query");
-        parameters.add("required", required);
 
         return parameters;
     }

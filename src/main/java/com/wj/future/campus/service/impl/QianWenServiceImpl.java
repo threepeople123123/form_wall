@@ -12,7 +12,9 @@ import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.embeddings.*;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.alibaba.dashscope.tools.*;
+import com.alibaba.dashscope.tools.FunctionDefinition;
+import com.alibaba.dashscope.tools.ToolBase;
+import com.alibaba.dashscope.tools.ToolFunction;
 import com.wj.future.campus.aiTools.AiArticleTool;
 import com.wj.future.campus.aiTools.AllTools;
 import com.wj.future.campus.aiTools.ToolInterface;
@@ -97,7 +99,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
                 Message systemMsg = Message.builder()
                         .role(Role.SYSTEM.getValue())
-                        .content("你是校园助手。当用户需要搜索帖子、查找校园信息时，必须调用工具获取数据，不要自己编造. 如果问题需要实时数据，优先调用工具。")
+                        .content("你是校园助手,搜索帖子、查找校园文章等")
                         .reasoningContent(knowledgeDoc)
                         .build();
                 messages.add(systemMsg);
@@ -157,113 +159,24 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         .model(apiKeyProperties.getTongyiXiaomiAnalysisPro())
                         .history(historyList)
                         .messages(messages)
-                        .tools(toolBaseList)
+//                        .tools(toolBaseList)
                         .toolChoice("auto") // 自动选择是否调用工具
                         .resultFormat(GenerationParam.ResultFormat.MESSAGE)
                         .incrementalOutput(true)
                         .build();
 
                 Generation gen = new Generation();
-                Flowable<GenerationResult> result = gen.streamCall(param);
                 StringBuffer aiReply = new StringBuffer();
 
-                /*result.blockingForEach(res -> {
-                    // 检查是否有工具调用
-                    if (res.getOutput().getChoices().get(0).getMessage().getToolCalls() != null &&
-                            !res.getOutput().getChoices().get(0).getMessage().getToolCalls().isEmpty()) {
-                        List<ToolCallBase> toolCalls = res.getOutput().getChoices().get(0).getMessage().getToolCalls();
+                Flowable<GenerationResult> secondResult = gen.streamCall(param);
 
-                        for (ToolCallBase toolCall : toolCalls) {
-                            if (toolCall instanceof ToolCallFunction toolCallFunction) {
-                                String functionName = toolCallFunction.getFunction().getName();
-                                String functionArgs = toolCallFunction.getFunction().getArguments();
+//                Message outputMessage = gen.getOutput().getChoices().get(0).getMessage();
+//                if (CollUtil.isNotEmpty(outputMessage.getToolCalls())){
+//                    for (ToolCallBase toolCallBase : outputMessage.getToolCalls()) {
+//
+//                    }
+//                }
 
-                                logger.info("AI 请求调用工具: {}, 参数: {}", functionName, functionArgs);
-
-                                // 通知前端正在调用工具
-                                try {
-                                    String toolCallMsg = "\n\n[正在搜索相关文章...]\n\n";
-                                    sseEmitter.send(toolCallMsg);
-                                    aiReply.append(toolCallMsg);
-                                } catch (IOException e) {
-                                    sseEmitter.completeWithError(e);
-                                    return;
-                                }
-
-                                // 根据函数名执行对应的工具
-                                String toolResult = null;
-                                ToolInterface tool = allTools.getTool(functionName);
-                                if (ObjectUtil.isNotEmpty(tool)){
-                                    toolResult = tool.execute(functionArgs);
-                                }
-
-                                logger.info("工具执行结果: {}", toolResult);
-
-                                // 将工具调用结果添加为消息，继续与AI对话
-                                Message toolResultMsg = Message.builder()
-                                        .role(Role.TOOL.getValue())
-                                        .content(toolResult)
-                                        .name(functionName)
-                                        .build();
-                                messages.add(toolResultMsg);
-                            }
-                        }
-
-                        // 如果有工具调用，需要进行第二轮对话获取最终回复
-                        if (!messages.isEmpty()) {
-                            GenerationParam secondParam = GenerationParam.builder()
-                                    .apiKey(apiKeyProperties.getQianWenApiKey())
-                                    .model(apiKeyProperties.getTongyiXiaomiAnalysisPro())
-                                    .messages(messages)
-                                    .resultFormat(GenerationParam.ResultFormat.MESSAGE)
-                                    .incrementalOutput(true)
-                                    .build();
-
-                            Flowable<GenerationResult> secondResult = gen.streamCall(secondParam);
-                            secondResult.blockingForEach(secondRes -> {
-                                String content = secondRes.getOutput()
-                                        .getChoices()
-                                        .get(0)
-                                        .getMessage()
-                                        .getContent();
-
-                                try {
-                                    sseEmitter.send(content);
-                                    aiReply.append(content);
-                                    logger.info("工具消息：{}", content);
-                                } catch (IOException e) {
-                                    sseEmitter.completeWithError(e);
-                                }
-                            });
-                        }
-                    } else {
-                        // 没有工具调用，直接返回内容
-                        String content = res.getOutput()
-                                .getChoices()
-                                .get(0)
-                                .getMessage()
-                                .getContent();
-
-                        if (content != null && !content.isEmpty()) {
-                            try {
-                                sseEmitter.send(content);
-                                aiReply.append(content);
-                                logger.info("消息：{}", content);
-                            } catch (IOException e) {
-                                sseEmitter.completeWithError(e);
-                            }
-                        }
-                    }
-                });*/
-                GenerationParam secondParam = GenerationParam.builder()
-                        .apiKey(apiKeyProperties.getQianWenApiKey())
-                        .model(apiKeyProperties.getTongyiXiaomiAnalysisPro())
-                        .messages(messages)
-                        .resultFormat(GenerationParam.ResultFormat.MESSAGE)
-                        .incrementalOutput(true)
-                        .build();
-
-                Flowable<GenerationResult> secondResult = gen.streamCall(secondParam);
 
                 secondResult.blockingForEach(res -> {
 
@@ -302,9 +215,11 @@ public class QianWenServiceImpl<T> implements AiService<T> {
 
                 redisTemplateConfig.opsForHash().put(USER_BOT_TO_CONVERSATION.getKey(), conversationId, JSONUtil.toJsonStr(userToBotConversations));
 
-                sseEmitter.complete();
+
             } catch (NoApiKeyException | InputRequiredException e) {
                 throw new RuntimeException(e);
+            } finally {
+                sseEmitter.complete();
             }
         }).start();
         return sseEmitter;
