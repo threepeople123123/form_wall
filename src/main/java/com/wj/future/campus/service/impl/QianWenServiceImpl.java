@@ -22,7 +22,7 @@ import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.AiConversationRequest;
 import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.properties.ApiKeyProperties;
-import com.wj.future.campus.service.AiService;
+import com.wj.future.campus.service.CampusAiService;
 import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import static com.alibaba.dashscope.embeddings.TextEmbedding.Models.TEXT_EMBEDDI
 import static com.wj.future.campus.campusEnum.RedisEnum.USER_BOT_TO_CONVERSATION;
 
 @Service("qianWenServiceImpl")
-public class QianWenServiceImpl<T> implements AiService<T> {
+public class QianWenServiceImpl<T> implements CampusAiService<T> {
 
     public static final Logger logger = LoggerFactory.getLogger(QianWenServiceImpl.class);
 
@@ -148,7 +148,7 @@ public class QianWenServiceImpl<T> implements AiService<T> {
                         // 若没有配置环境变量，请用阿里云百炼API Key将下行替换为：.apiKey("sk-xxx")
                         .apiKey(apiKeyProperties.getQianWenApiKey())
                         // 模型列表：https://help.aliyun.com/model-studio/getting-started/models
-                        .model(apiKeyProperties.getTongyiXiaomiAnalysisPro())
+                        .model(apiKeyProperties.getQwen3_5_plus())
                         .history(historyList)
                         .messages(messages)
 //                        .tools(toolBaseList)

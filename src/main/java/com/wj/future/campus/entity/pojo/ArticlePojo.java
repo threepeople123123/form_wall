@@ -71,7 +71,7 @@ public class ArticlePojo {
     @Schema(description = "热度")
     private int heat;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

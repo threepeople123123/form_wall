@@ -14,4 +14,10 @@ public class ApiKeyProperties {
     private String zhiPuApiKey;
 
     private String tongyiXiaomiAnalysisPro;
+
+    private String qwen3_5_122b_a10b;
+
+    private String qianWenBaseUrl;
+
+    private String qwen3_5_plus;
 }

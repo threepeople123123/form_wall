@@ -49,7 +49,7 @@ public class CommentArticlePojo {
     @TableField("photo_url")
     private String photoUrl;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

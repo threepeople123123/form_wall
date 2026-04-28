@@ -10,21 +10,20 @@ import com.alibaba.dashscope.exception.NoApiKeyException;
 import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.AiConversationRequest;
 import com.wj.future.campus.properties.ApiKeyProperties;
-import com.wj.future.campus.service.AiService;
+import com.wj.future.campus.service.CampusAiService;
 import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Service("zhiPuServiceImpl")
-public class ZhiPuServiceImpl<T> implements AiService<T> {
+public class ZhiPuServiceImpl<T> implements CampusAiService<T> {
 
     public static final Logger logger = LoggerFactory.getLogger(ZhiPuServiceImpl.class);
 

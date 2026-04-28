@@ -29,7 +29,7 @@ public class ArticleTagUnionPojo {
     @Schema(description = "标签id")
     private String tagId;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

@@ -46,7 +46,7 @@ public class UserPojo {
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

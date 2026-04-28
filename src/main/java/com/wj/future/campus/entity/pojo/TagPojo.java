@@ -29,7 +29,7 @@ public class TagPojo {
     @Schema(description = "标签热度")
     public int hot;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

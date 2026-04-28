@@ -53,6 +53,7 @@ public class ArticleResponse {
     private List<String> tag;
 
     @Schema(description = "更新时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime updateTime;
 
     @Schema(description = "学校id")

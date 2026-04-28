@@ -45,7 +45,7 @@ public class FilePojo {
     @TableField("create_time")
     private LocalDateTime createTime;
 
-    @TableLogic
+    @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")
     private boolean isDelete;
 }

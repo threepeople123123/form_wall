@@ -7,7 +7,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
-public interface AiService<T> {
+public interface CampusAiService<T> {
 
     /**
      * ai一次性返回所有信息
