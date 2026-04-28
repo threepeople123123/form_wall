@@ -1,7 +1,12 @@
 package com.wj.future.campus.config;
 
+import com.wj.future.campus.handler.ChatMemoryStoreHandler;
 import com.wj.future.campus.properties.ApiKeyProperties;
+import com.wj.future.campus.service.AiStreamService;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
+import dev.langchain4j.service.AiServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,12 +18,36 @@ public class AiModelConfig {
     ApiKeyProperties apiKeyProperties;
 
 
+    @Autowired
+    private ChatMemoryStoreHandler chatMemoryStoreHandler;
+
+
     @Bean
-    public OpenAiStreamingChatModel openAiStreamingChatModel() {
-        return OpenAiStreamingChatModel.builder()
+    public AiStreamService openAiStreamingChatModel() {
+        OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
                 .baseUrl(apiKeyProperties.getQianWenBaseUrl())
                 .apiKey(apiKeyProperties.getQianWenApiKey())
                 .modelName(apiKeyProperties.getQwen3_5_plus()).build();
+
+        ChatMemoryProvider chatMemoryProvider = memoryId -> MessageWindowChatMemory.builder()
+                .id(memoryId)
+                .maxMessages(10)
+                .chatMemoryStore(chatMemoryStoreHandler)
+                .build();
+
+        return AiServices.builder(AiStreamService.class)
+                .streamingChatModel(openAiStreamingChatModel)
+                .chatMemoryProvider(chatMemoryProvider)
+                .tools()
+                .systemMessage("""
+                        你是一个校园文章助手，可以帮助用户搜索和查找文章。
+                        重要规则:
+                        1. 当用户询问关于文章、帖子、内容相关问题时，优先调用工具，查询系统内部的文章
+                        2. 根据搜索结果，用自然语言总结并回答用户的问题
+                        3. 如果搜索结果为空，可以告诉用户系统中没有找到，然后去查询网上的相关文章
+                        4. 不要编造不存在的文章内容
+                        """)
+                .build();
     }
 
 }

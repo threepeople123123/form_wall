@@ -104,7 +104,7 @@ public class AiArticleTool implements ToolInterface {
     /**
      * 搜索文章工具（LangChain4j 调用）
      */
-    @Tool(value = "搜索校园帖子，可以根据关键词、标签等条件查找相关文章")
+    @Tool(value = "搜索校园帖子，可以根据关键词、标签等条件查找相关文章",name = "search_articles")
     public String searchArticlesByLangChain(@P("查询文章的标题，内容关键字，可以根据该字段查询，非必传") String query,@P("标签集合，可以根据标签查询文章，非必传") List<String> tag) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("query", query);

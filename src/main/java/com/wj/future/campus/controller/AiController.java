@@ -1,7 +1,12 @@
 package com.wj.future.campus.controller;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
+import com.wj.future.campus.entity.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
 import com.wj.future.campus.exception.FormWallException;
+import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.util.UserUtil;
 import dev.langchain4j.model.chat.response.ChatResponse;
@@ -25,6 +30,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @RestController
@@ -41,10 +47,24 @@ public class AiController {
     @Autowired
     private AiStreamService aiStreamService;
 
+    @Autowired
+    private RabbitMQProducer rabbitMQProducer;
+
+
     @PostMapping("/chat")
     public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest, HttpServletRequest request) throws IOException, FormWallException {
 
-        TokenStream tokenStream = aiStreamService.chat(aiChatRequest.getMsg());
+        AtomicReference<UserPojo> userPojoAtomicReference = new AtomicReference<>(null);
+        try {
+            UserPojo userPojo = userUtil.getUser(request);
+            userPojoAtomicReference.set(userPojo);
+        }catch (Exception e){
+            logger.error("用户没有登录");
+        }
+        // 获取用户 ID 或会话 ID 作为 memoryId
+        String conversationId = aiChatRequest.getConversationId();
+
+        TokenStream tokenStream = aiStreamService.chat(conversationId, aiChatRequest.getMsg());
 
         SseEmitter sseEmitter = new SseEmitter();
         tokenStream
@@ -78,6 +98,15 @@ public class AiController {
                 })
                 .onCompleteResponse((ChatResponse response) -> {
                     logger.info("【完整响应】: {}", response.aiMessage().text());
+                    UserToBotConversation userToBotConversation = new UserToBotConversation();
+                    userToBotConversation.setBot(response.aiMessage().text());
+                    userToBotConversation.setUser(aiChatRequest.getMsg());
+                    userToBotConversation.setConversationId(conversationId);
+                    UserPojo userPojo = userPojoAtomicReference.get();
+                    if (ObjectUtil.isNotEmpty(userPojo)){
+                        userToBotConversation.setUserId(userPojo.getId());
+                    }
+                    rabbitMQProducer.sendCampusAiConversationMessage(JSONUtil.toJsonStr(userToBotConversation));
                     sseEmitter.complete();
                 })
                 .onError((Throwable error) -> {
