@@ -156,12 +156,6 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-
-        <!--        <dependency>-->
-<!--            <groupId>org.apache.rocketmq</groupId>-->
-<!--            <artifactId>rocketmq-spring-boot-starter</artifactId>-->
-<!--            <version>2.2.3</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
@@ -249,7 +243,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
+            <groupId>org.springframework.boot</groupId>e
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 

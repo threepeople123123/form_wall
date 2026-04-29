@@ -19,10 +19,6 @@ public interface ConversationVectorMapper extends BaseMapper<ConversationVectorP
      * @param limit 返回结果数量
      * @return 最相似的对话记录列表
      */
-    @Select("SELECT * " +
-            "FROM conversation_vector " +
-            "ORDER BY user_vector <=> CAST(#{userVector} AS vector) " +
-            "LIMIT #{limit}")
     List<ConversationVectorPojo> selectMostSimilar(@Param("userVector") String userVector, @Param("limit") int limit);
     
     /**

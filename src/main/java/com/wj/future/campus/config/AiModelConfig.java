@@ -1,7 +1,9 @@
 package com.wj.future.campus.config;
 
+import com.wj.future.campus.aiTools.AiArticleTool;
 import com.wj.future.campus.handler.ChatMemoryStoreHandler;
 import com.wj.future.campus.properties.ApiKeyProperties;
+import com.wj.future.campus.rag.PgVectorContentRetriever;
 import com.wj.future.campus.service.AiStreamService;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -21,6 +23,12 @@ public class AiModelConfig {
     @Autowired
     private ChatMemoryStoreHandler chatMemoryStoreHandler;
 
+    @Autowired
+    private PgVectorContentRetriever pgVectorContentRetriever;
+
+    @Autowired
+    private AiArticleTool aiArticleTool;
+
 
     @Bean
     public AiStreamService openAiStreamingChatModel() {
@@ -38,7 +46,8 @@ public class AiModelConfig {
         return AiServices.builder(AiStreamService.class)
                 .streamingChatModel(openAiStreamingChatModel)
                 .chatMemoryProvider(chatMemoryProvider)
-                .tools()
+                .contentRetriever(pgVectorContentRetriever)  // 添加向量检索器
+                .tools(aiArticleTool)
                 .systemMessage("""
                         你是一个校园文章助手，可以帮助用户搜索和查找文章。
                         重要规则:

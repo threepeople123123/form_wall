@@ -8,14 +8,17 @@ import com.wj.future.campus.config.RabbitMQConfig;
 import com.wj.future.campus.entity.nosql.UserToBotConversation;
 import com.wj.future.campus.entity.pojo.AiToUserConversationPoJo;
 import com.wj.future.campus.service.AiToUserConversationService;
+import com.wj.future.campus.util.EmbeddingUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * RabbitMQ 消息消费者
@@ -26,6 +29,9 @@ public class RabbitMQConsumer {
 
     @Autowired
     private AiToUserConversationService aiToUserConversationService;
+
+    @Autowired
+    private EmbeddingUtil embeddingUtil;
 
     /**
      * 监听示例队列
@@ -43,6 +49,11 @@ public class RabbitMQConsumer {
             aiToUserConversationPoJo.setId(IdUtil.getSnowflakeNextId());
             aiToUserConversationPoJo.setCreateTime(LocalDateTime.now());
             aiToUserConversationService.save(aiToUserConversationPoJo);
+
+            // 将用户消息和ai回复向量化存储起来
+            List<Double> userVector = embeddingUtil.embedToVector(userToBotConversation.getUser());
+            List<Double> botVector = embeddingUtil.embedToVector(userToBotConversation.getBot());
+
 
             // 手动确认消息（因为配置了 acknowledge-mode: manual）
             channel.basicAck(msg.getMessageProperties().getDeliveryTag(), false);
