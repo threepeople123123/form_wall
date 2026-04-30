@@ -15,13 +15,14 @@ spring:
       lettuce:
         pool:
           # 连接池最大连接数
-          max-active: 200
-          # 连接池最大阻塞等待时间（使用负值表示没有限制）
-          max-wait: -1ms
+          max-active: 100
+          # 连接池最大阻塞等待时间
+          max-wait: 2000ms
           # 连接池中的最大空闲连接
-          max-idle: 10
+          max-idle: 30
           # 连接池中的最小空闲连接
-          min-idle: 0
+          min-idle: 10
+      connect-timeout: 10s
   datasource:
     url: jdbc:postgresql://8.140.219.233:5432/campus-future
     username: postgres

@@ -4,7 +4,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.dashscope.tools.FunctionDefinition;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.wj.future.campus.controller.ArticleController;
@@ -27,8 +26,6 @@ public class AiArticleTool implements ToolInterface {
 
     @Autowired
     private ArticleController articleController;
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final String DESCRIPTION = "搜索校园文章，可以根据用户输入的关键字搜索文章";
 
@@ -98,7 +95,7 @@ public class AiArticleTool implements ToolInterface {
             return resultStr;
         } catch (Exception e) {
             log.error("搜索文章失败", e);
-            return "{\"error\": \"搜索失败: " + e.getMessage() + "\"}";
+            return  String.format("error:搜索文章失败: %s", e.getMessage());
         }
     }
 
