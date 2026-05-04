@@ -2,7 +2,7 @@ package com.wj.future.campus.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wj.future.campus.entity.pojo.ArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.ArticlePojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.response.ArticleResponse;
 

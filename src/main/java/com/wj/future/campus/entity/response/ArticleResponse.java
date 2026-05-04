@@ -1,7 +1,7 @@
 package com.wj.future.campus.entity.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.wj.future.campus.entity.pojo.FilePojo;
+import com.wj.future.campus.entity.pojo.rdb.FilePojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

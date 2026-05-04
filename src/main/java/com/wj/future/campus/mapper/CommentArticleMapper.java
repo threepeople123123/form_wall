@@ -1,7 +1,7 @@
 package com.wj.future.campus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wj.future.campus.entity.pojo.CommentArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.CommentArticlePojo;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

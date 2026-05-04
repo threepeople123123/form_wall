@@ -2,9 +2,8 @@ package com.wj.future.campus.controller;
 
 
 import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.wj.future.campus.checkLogin.AuthIsLogin;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.UserUpdateRequest;
 import com.wj.future.campus.entity.response.UserinfoResponse;
 import com.wj.future.campus.exception.FormWallException;

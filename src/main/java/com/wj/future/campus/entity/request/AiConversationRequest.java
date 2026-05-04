@@ -1,6 +1,6 @@
 package com.wj.future.campus.entity.request;
 
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.util.List;

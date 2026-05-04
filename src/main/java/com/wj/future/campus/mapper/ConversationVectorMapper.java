@@ -1,10 +1,9 @@
 package com.wj.future.campus.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.wj.future.campus.entity.pojo.ConversationVectorPojo;
+import com.wj.future.campus.entity.pojo.rdb.ConversationVectorPojo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 

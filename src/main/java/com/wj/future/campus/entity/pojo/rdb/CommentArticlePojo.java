@@ -1,4 +1,4 @@
-package com.wj.future.campus.entity.pojo;
+package com.wj.future.campus.entity.pojo.rdb;
 
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;

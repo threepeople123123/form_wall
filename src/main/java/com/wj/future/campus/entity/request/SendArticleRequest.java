@@ -1,7 +1,7 @@
 package com.wj.future.campus.entity.request;
 
-import com.wj.future.campus.entity.pojo.FilePojo;
-import com.wj.future.campus.entity.pojo.TagPojo;
+import com.wj.future.campus.entity.pojo.rdb.FilePojo;
+import com.wj.future.campus.entity.pojo.rdb.TagPojo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

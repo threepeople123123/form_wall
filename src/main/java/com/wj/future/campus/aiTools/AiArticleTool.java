@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.wj.future.campus.controller.ArticleController;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.response.ArticleResponse;
 import com.wj.future.campus.result.R;

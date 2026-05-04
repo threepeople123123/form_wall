@@ -3,8 +3,8 @@
 //import cn.hutool.core.bean.BeanUtil;
 //import cn.hutool.core.util.IdUtil;
 //import cn.hutool.json.JSONUtil;
-//import com.wj.future.campus.entity.nosql.UserToBotConversation;
-//import com.wj.future.campus.entity.pojo.AiToUserConversationPoJo;
+//import com.wj.future.campus.entity.pojo.nosql.UserToBotConversation;
+//import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationPoJo;
 //import com.wj.future.campus.service.AiToUserConversationService;
 //import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 //import org.apache.rocketmq.spring.core.RocketMQListener;

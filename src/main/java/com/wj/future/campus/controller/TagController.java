@@ -3,7 +3,7 @@ package com.wj.future.campus.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.wj.future.campus.entity.pojo.TagPojo;
+import com.wj.future.campus.entity.pojo.rdb.TagPojo;
 import com.wj.future.campus.entity.response.TagResponse;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.TagService;

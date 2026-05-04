@@ -3,7 +3,7 @@ package com.wj.future.campus.config;
 import com.wj.future.campus.aiTools.AllTools;
 import com.wj.future.campus.handler.ChatMemoryStoreHandler;
 import com.wj.future.campus.properties.ApiKeyProperties;
-import com.wj.future.campus.rag.PgVectorContentRetriever;
+import com.wj.future.campus.rag.TypesenseVectorContentRetriever;
 import com.wj.future.campus.service.AiStreamService;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -23,7 +23,7 @@ public class AiModelConfig {
     private ChatMemoryStoreHandler chatMemoryStoreHandler;
 
     @Autowired
-    private PgVectorContentRetriever pgVectorContentRetriever;
+    private TypesenseVectorContentRetriever typesenseVectorContentRetriever;
 
     @Autowired
     private AllTools allTools;
@@ -45,7 +45,7 @@ public class AiModelConfig {
         return AiServices.builder(AiStreamService.class)
                 .streamingChatModel(openAiStreamingChatModel)
                 .chatMemoryProvider(chatMemoryProvider)
-                .contentRetriever(pgVectorContentRetriever)  // 添加向量检索器
+                .contentRetriever(typesenseVectorContentRetriever)  // 添加向量检索器
                 .tools(allTools.getAllTools().toArray())  // 自动注册所有工具
                 .systemMessage("""
                         你是一个校园文章助手，可以帮助用户搜索和查找文章。

@@ -1,4 +1,4 @@
-package com.wj.future.campus.entity.es.po;
+package com.wj.future.campus.entity.pojo.nosql;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -22,7 +22,7 @@ import static org.springframework.data.elasticsearch.annotations.DateFormat.date
  */
 @Document(indexName = "article")
 @Data
-public class ArticleEsPojo {
+public class ArticleIndex {
     @Id
     private String id;
 

@@ -1,17 +1,22 @@
-package com.wj.future.campus.entity.elasticsearch.response;
+package com.wj.future.campus.entity.pojo.nosql;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Document(indexName = "article_index")
-public class ArticleElasticsearchResponse {
-    @Schema(description = "内容id")
+@Data
+public class ArticleElasticsearchIndex {
+    @Id
+    @Schema(description ="主键%")
     private String id;
 
     @Schema(description = "标题")
+
     private String title;
 
     @Schema(description = "内容")

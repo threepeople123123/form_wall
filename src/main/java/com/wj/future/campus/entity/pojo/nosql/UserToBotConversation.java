@@ -1,10 +1,7 @@
-package com.wj.future.campus.entity.nosql;
+package com.wj.future.campus.entity.pojo.nosql;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Data
 public class UserToBotConversation {

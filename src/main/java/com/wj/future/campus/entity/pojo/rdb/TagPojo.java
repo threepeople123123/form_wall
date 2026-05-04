@@ -1,4 +1,4 @@
-package com.wj.future.campus.entity.pojo;
+package com.wj.future.campus.entity.pojo.rdb;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
@@ -10,24 +10,24 @@ import lombok.Data;
  * packageName com.wj.form.wall.entity.pojo
  *
  * @author wangj
- * @className ArticleTagUnionPojo
+ * @className TagPojo
  * @date 2026/3/2
- * @description 文章表和标签表联合表
+ * @description 标签表
  */
 @Data
-@TableName("article_tag_union")
-public class ArticleTagUnionPojo {
+@TableName("tag")
+public class TagPojo {
     @TableField("id")
-    @Schema(description = "主键")
+    @Schema(description = "标签id")
     private String id;
 
-    @TableField("article_id")
-    @Schema(description = "文章id")
-    private String articleId;
+    @TableField("tag_name")
+    @Schema(description = "标签名称")
+    private String tagName;
 
-    @TableField("tag_id")
-    @Schema(description = "标签id")
-    private String tagId;
+    @TableField("hot")
+    @Schema(description = "标签热度")
+    public int hot;
 
     @TableLogic(value = "false",delval = "true")
     @TableField("is_delete")

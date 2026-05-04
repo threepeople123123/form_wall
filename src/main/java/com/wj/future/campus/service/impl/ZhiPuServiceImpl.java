@@ -7,7 +7,7 @@ import com.alibaba.dashscope.common.Message;
 import com.alibaba.dashscope.common.Role;
 import com.alibaba.dashscope.exception.InputRequiredException;
 import com.alibaba.dashscope.exception.NoApiKeyException;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.AiConversationRequest;
 import com.wj.future.campus.properties.ApiKeyProperties;
 import com.wj.future.campus.service.CampusAiService;

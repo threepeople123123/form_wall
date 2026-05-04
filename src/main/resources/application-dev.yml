@@ -5,7 +5,7 @@ spring:
       # Redis数据库索引（默认为0）
       database: 1
       # Redis服务器地址
-      host: 8.140.219.233
+      host: localhost
       # Redis服务器连接端口
       port: 6379
       # Redis服务器连接密码（默认为空）
@@ -24,7 +24,7 @@ spring:
           min-idle: 10
       connect-timeout: 10s
   datasource:
-    url: jdbc:postgresql://8.140.219.233:5432/campus-future
+    url: jdbc:postgresql://localhost:5432/campus-future
     username: postgres
     password: wangjian020426
     driver-class-name: org.postgresql.Driver
@@ -58,7 +58,7 @@ spring:
       write-dates-as-timestamps: false
   # RabbitMQ 配置
   rabbitmq:
-    host: 8.140.219.233  # RabbitMQ 服务器地址
+    host: localhost  # RabbitMQ 服务器地址
     port: 5672       # RabbitMQ 端口
     username: admin  # 用户名
     password: password123  # 密码
@@ -95,7 +95,7 @@ knife4j:
   setting:
     language: zh_cn
 ai:
-  qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
+  qian-wen-api-key: sk-xxxxxxxxxxxxxxxxxxx
   zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
   tongyi-xiaomi-analysis-pro: tongyi-xiaomi-analysis-pro
   qwen3_5_122b_a10b: qwen3.5-122b-a10b
@@ -103,13 +103,13 @@ ai:
   qwen3_5_plus: qwen3.5-plus
 typesense:
   agreement: http
-  host: 8.140.219.233
+  host: localhost
   port: 8108
   apiKey: Wangjian020426
 
 
 minio:
-  endpoint: http://8.140.219.233:9000
+  endpoint: http://localhost:9000
   accessKey: minioadmin
   secretKey: minioadmin
   bucketName: campus-future

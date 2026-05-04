@@ -10,50 +10,6 @@ public class RSAUtils {
 
     private static final String ALGORITHM = "RSA";
 
-
-    public static void main(String[] args) {
-        try {
-            // 1. 初始化密钥对生成器，指定算法为 RSA
-            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(ALGORITHM);
-
-            // 2. 初始化密钥长度 (通常为 2048 位)
-            keyPairGen.initialize(2048);
-
-            // 3. 生成密钥对
-            KeyPair keyPair = keyPairGen.generateKeyPair();
-
-            // 4. 获取私钥和公钥
-            PrivateKey privateKey = keyPair.getPrivate();
-            PublicKey publicKey = keyPair.getPublic();
-
-            // 5. 转换为 Base64 编码的字符串（PKCS#8 格式）
-            String privateKeyEncoded = Base64.getEncoder().encodeToString(privateKey.getEncoded());
-            String publicKeyEncoded = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-
-            System.out.println("-----PRIVATE KEY (PKCS#8)-----");
-            System.out.println(privateKeyEncoded);
-
-            System.out.println("\n-----PUBLIC KEY (X.509)-----");
-            System.out.println(publicKeyEncoded);
-
-
-            String originalText = "Hello, 这是一条加密消息！";
-
-            // 1. 加密
-            String encryptedText = encrypt(originalText, publicKeyEncoded);
-            System.out.println("加密后的密文: " + encryptedText);
-
-            // 2. 解密
-            String decryptedText = decrypt(encryptedText, privateKeyEncoded);
-            System.out.println("解密后的明文: " + decryptedText);
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * 公钥加密
      */

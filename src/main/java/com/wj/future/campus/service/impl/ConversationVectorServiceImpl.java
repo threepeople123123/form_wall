@@ -2,7 +2,7 @@ package com.wj.future.campus.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wj.future.campus.entity.pojo.ConversationVectorPojo;
+import com.wj.future.campus.entity.pojo.rdb.ConversationVectorPojo;
 import com.wj.future.campus.mapper.ConversationVectorMapper;
 import com.wj.future.campus.service.ConversationVectorService;
 import org.springframework.stereotype.Service;

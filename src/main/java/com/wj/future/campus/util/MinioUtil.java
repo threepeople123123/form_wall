@@ -1,8 +1,7 @@
 package com.wj.future.campus.util;
 
 import cn.hutool.core.util.IdUtil;
-import com.wj.future.campus.entity.pojo.FilePojo;
-import io.minio.GetPresignedObjectUrlArgs;
+import com.wj.future.campus.entity.pojo.rdb.FilePojo;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.GetObjectArgs;

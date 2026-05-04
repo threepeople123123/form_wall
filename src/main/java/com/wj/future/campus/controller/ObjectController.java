@@ -2,7 +2,7 @@ package com.wj.future.campus.controller;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.response.UploadFileResponse;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.result.R;
@@ -11,8 +11,6 @@ import com.wj.future.campus.util.TokenBucketLimiter;
 import com.wj.future.campus.util.UserUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

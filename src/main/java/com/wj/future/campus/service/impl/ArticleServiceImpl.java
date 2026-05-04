@@ -3,7 +3,7 @@ package com.wj.future.campus.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wj.future.campus.entity.pojo.ArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.ArticlePojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.response.ArticleResponse;
 import com.wj.future.campus.mapper.ArticleMapper;

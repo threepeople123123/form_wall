@@ -3,14 +3,13 @@ package com.wj.future.campus.service.impl;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpStatus;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.LoginRequest;
 import com.wj.future.campus.entity.request.RegisterRequest;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.mapper.UserMapper;
 import com.wj.future.campus.service.UserService;
 import com.wj.future.campus.util.MySecurityUtil;
-import com.wj.future.campus.util.RSAUtils;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

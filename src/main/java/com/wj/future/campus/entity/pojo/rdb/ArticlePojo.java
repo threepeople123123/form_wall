@@ -1,4 +1,4 @@
-package com.wj.future.campus.entity.pojo;
+package com.wj.future.campus.entity.pojo.rdb;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;

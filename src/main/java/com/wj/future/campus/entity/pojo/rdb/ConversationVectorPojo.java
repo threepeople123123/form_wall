@@ -1,4 +1,4 @@
-package com.wj.future.campus.entity.pojo;
+package com.wj.future.campus.entity.pojo.rdb;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.wj.future.campus.handler.VectorTypeHandler;

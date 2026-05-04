@@ -11,11 +11,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.wj.future.campus.checkLogin.AuthIsLogin;
-import com.wj.future.campus.entity.es.po.ArticleEsPojo;
-import com.wj.future.campus.entity.pojo.ArticlePojo;
-import com.wj.future.campus.entity.pojo.FilePojo;
-import com.wj.future.campus.entity.pojo.TagPojo;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.nosql.ArticleIndex;
+import com.wj.future.campus.entity.pojo.rdb.ArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.FilePojo;
+import com.wj.future.campus.entity.pojo.rdb.TagPojo;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.ArticleRequest;
 import com.wj.future.campus.entity.request.SendArticleRequest;
 import com.wj.future.campus.entity.response.ArticleResponse;
@@ -122,25 +122,25 @@ public class ArticleController {
             }
             if (tableResult) {
 
-                ArticleEsPojo articleEsPojo = new ArticleEsPojo();
-                articleEsPojo.setId(articlePojo.getId().toString());
-                articleEsPojo.setTitle(title);
-                articleEsPojo.setContent(content);
-                articleEsPojo.setPhotoUrl(articlePojo.getPhotoUrl());
-                articleEsPojo.setCreateTime(LocalDateTime.now());
-                articleEsPojo.setSendUserId(user.getId());
-                articleEsPojo.setSendUserName(user.getName());
-                articleEsPojo.setUpdateTime(LocalDateTime.now());
-                articleEsPojo.setViewRange(viewRange);
-                articleEsPojo.setSchoolId(user.getSchoolId());
-                articleEsPojo.setSchoolName(user.getSchoolName());
-                articleEsPojo.setLikeCount(0);
-                articleEsPojo.setHeat(0);
-                articleEsPojo.setTag(tags.stream().map(TagPojo::getTagName).toList());
-                articleEsPojo.setSchoolId("test");
-                articleEsPojo.setSchoolName("test");
+                ArticleIndex articleIndex = new ArticleIndex();
+                articleIndex.setId(articlePojo.getId().toString());
+                articleIndex.setTitle(title);
+                articleIndex.setContent(content);
+                articleIndex.setPhotoUrl(articlePojo.getPhotoUrl());
+                articleIndex.setCreateTime(LocalDateTime.now());
+                articleIndex.setSendUserId(user.getId());
+                articleIndex.setSendUserName(user.getName());
+                articleIndex.setUpdateTime(LocalDateTime.now());
+                articleIndex.setViewRange(viewRange);
+                articleIndex.setSchoolId(user.getSchoolId());
+                articleIndex.setSchoolName(user.getSchoolName());
+                articleIndex.setLikeCount(0);
+                articleIndex.setHeat(0);
+                articleIndex.setTag(tags.stream().map(TagPojo::getTagName).toList());
+                articleIndex.setSchoolId("test");
+                articleIndex.setSchoolName("test");
 
-                Map<String, Object> articleEsPojoToMap = BeanUtil.beanToMap(articleEsPojo, new LinkedHashMap<>(),
+                Map<String, Object> articleIndexToMap = BeanUtil.beanToMap(articleIndex, new LinkedHashMap<>(),
                         CopyOptions.create().setFieldValueEditor((fieldName, fieldValue) -> {
                             // 如果字段值是 LocalDateTime 类型,将其转换为 Unix 时间戳(秒)
                             if (fieldValue instanceof LocalDateTime) {
@@ -151,7 +151,7 @@ public class ArticleController {
                         })
                 );
                 try {
-                    typesenseClient.collections("article_index").documents().create(articleEsPojoToMap);
+                    typesenseClient.collections("article_index").documents().create(articleIndexToMap);
 
                     // 塞入redis，设置一天过期时间
                     ArticleResponse articleResponse = BeanUtil.copyProperties(articlePojo, ArticleResponse.class);
@@ -208,7 +208,7 @@ public class ArticleController {
             SearchResult searchResult = typesenseClient.collections("article_index").documents().search(searchParameters);
 
             // 3. 处理结果映射 (Typesense 返回的是 Map<String, Object>)
-            List<ArticleEsPojo> articleEsPojos = searchResult.getHits().stream()
+            List<ArticleEsPojo> articleIndexs = searchResult.getHits().stream()
                     .map(hit -> {
                         // Typesense SDK 会将 document 映射为 Map
                         return BeanUtil.fillBeanWithMap(hit.getDocument(), new ArticleEsPojo(), false);
@@ -222,8 +222,8 @@ public class ArticleController {
                     searchResult.getFound() // 总命中数
             );
 
-            if (CollUtil.isNotEmpty(articleEsPojos)) {
-                List<ArticleResponse> articleResponses = BeanUtil.copyToList(articleEsPojos, ArticleResponse.class);
+            if (CollUtil.isNotEmpty(articleIndexs)) {
+                List<ArticleResponse> articleResponses = BeanUtil.copyToList(articleIndexs, ArticleResponse.class);
                 articleResponsePage.setRecords(articleResponses);
             }
 

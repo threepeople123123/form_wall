@@ -2,10 +2,9 @@ package com.wj.future.campus.controller;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
-import com.wj.future.campus.entity.nosql.UserToBotConversation;
-import com.wj.future.campus.entity.pojo.UserPojo;
+import com.wj.future.campus.entity.pojo.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
-import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.util.UserUtil;
@@ -54,7 +53,7 @@ public class AiController {
 
 
     @PostMapping("/chat")
-    public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest, HttpServletRequest request) throws IOException, FormWallException {
+    public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest, HttpServletRequest request) {
 
         AtomicReference<UserPojo> userPojoAtomicReference = new AtomicReference<>(null);
         try {

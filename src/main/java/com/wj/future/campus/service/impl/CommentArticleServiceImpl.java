@@ -1,7 +1,7 @@
 package com.wj.future.campus.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.wj.future.campus.entity.pojo.CommentArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.CommentArticlePojo;
 import com.wj.future.campus.mapper.CommentArticleMapper;
 import com.wj.future.campus.service.CommentArticleService;
 import org.springframework.stereotype.Service;

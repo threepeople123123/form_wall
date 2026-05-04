@@ -1,7 +1,7 @@
 package com.wj.future.campus.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.wj.future.campus.entity.pojo.CommentArticlePojo;
+import com.wj.future.campus.entity.pojo.rdb.CommentArticlePojo;
 
 /**
  * packageName com.wj.future.campus.service

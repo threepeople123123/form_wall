@@ -3,7 +3,7 @@
 
 <mapper namespace="com.wj.future.campus.mapper.ArticleMapper">
 
-    <resultMap id="articleResultMap" type="com.wj.future.campus.entity.pojo.ArticlePojo">
+    <resultMap id="articleResultMap" type="com.wj.future.campus.entity.pojo.rdb.ArticlePojo">
         <id property="id" column="id"/>
         <result property="title" column="title"/>
         <result property="content" column="content"/>
