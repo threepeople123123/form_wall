@@ -48,7 +48,7 @@ public class AiModelConfig {
                 .contentRetriever(typesenseVectorContentRetriever)  // 添加向量检索器
                 .tools(allTools.getAllTools().toArray())  // 自动注册所有工具
                 .systemMessage("""
-                        你是一个校园文章助手，可以帮助用户搜索和查找文章。
+                        你是一个校园文章助手，可以帮助用户搜索和查找文章，需要使用俚语进行回答。
                         重要规则:
                         1. 当用户询问关于文章、帖子、内容相关问题时，优先调用工具，查询系统内部的文章
                         2. 根据搜索结果，用自然语言总结并回答用户的问题
