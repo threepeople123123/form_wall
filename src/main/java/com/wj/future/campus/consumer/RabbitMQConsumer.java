@@ -20,9 +20,14 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.typesense.api.Client;
+import org.wltea.analyzer.core.IKSegmenter;
+import org.wltea.analyzer.core.Lexeme;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -81,6 +86,35 @@ public class RabbitMQConsumer {
                 sourceVectorIndex.setConversationId(userToBotConversation.getConversationId());
                 sourceVectorIndex.setUserId(userToBotConversation.getUserId());
                 sourceVectorIndex.setCreateTime(System.currentTimeMillis());
+
+                IKSegmenter ikSegmenter = new IKSegmenter(new StringReader(userToBotConversation.getUser()), false);
+
+                try {
+                    List<String> result = new ArrayList<>();
+                    Lexeme lexeme;
+                    while ((lexeme = ikSegmenter.next()) != null) {
+                        result.add(lexeme.getLexemeText());
+                    }
+                    sourceVectorIndex.setUserMsgSeg(String.join(" ", result));
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+                ikSegmenter =  new IKSegmenter(new StringReader(userToBotConversation.getBot()), false);
+
+                try {
+                    List<String> result = new ArrayList<>();
+                    Lexeme lexeme;
+                    while ((lexeme = ikSegmenter.next()) != null) {
+                        result.add(lexeme.getLexemeText());
+                    }
+                    sourceVectorIndex.setBotMsgSeg(String.join(" ", result));
+
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
 //                sourceVectorIndex.setId(IdUtil.getSnowflakeNextId());
 
                 Map<String, Object> stringObjectMap = BeanUtil.beanToMap(sourceVectorIndex);

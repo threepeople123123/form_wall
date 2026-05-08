@@ -30,6 +30,12 @@ public class SourceVectorIndex {
     @Schema(description = "AI回复内容")
     private String botMsg;
 
+    @Schema(description = "用户原始问题分词")
+    private String userMsgSeg;
+
+    @Schema(description = "AI回复内容分词")
+    private String botMsgSeg;
+
     @Schema(description = "学校ID（用于按学校过滤）")
     private String schoolId;
 

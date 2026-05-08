@@ -79,7 +79,7 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
                 return List.of();
             }
 
-            log.info("Typesense 搜索完成，命中共 {} 条记录", result.getHits().size());
+            log.info("TypeSense 搜索完成，命中共 {} 条记录", result.getHits().size());
 
             return result.getHits().stream()
                     .map(hit -> {

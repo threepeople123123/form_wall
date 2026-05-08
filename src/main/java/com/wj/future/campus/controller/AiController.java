@@ -1,12 +1,26 @@
 package com.wj.future.campus.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
+import com.wj.future.campus.checkLogin.AuthIsLogin;
 import com.wj.future.campus.entity.pojo.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationPoJo;
 import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
+import com.wj.future.campus.entity.request.HistoryConversationRequest;
+import com.wj.future.campus.entity.request.SearchConversationRequest;
+import com.wj.future.campus.entity.response.SearchConversationResponse;
+import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.producer.RabbitMQProducer;
+import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.AiStreamService;
+import com.wj.future.campus.service.AiToUserConversationService;
 import com.wj.future.campus.util.UserUtil;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.PartialThinking;
@@ -21,19 +35,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.typesense.model.MultiSearchCollectionParameters;
+import org.typesense.model.MultiSearchSearchesParameter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 @RestController
 @RequestMapping("/ai")
+@ApiSupport(order = 1, author = "wj")
 public class AiController {
     public static final Logger logger = LoggerFactory.getLogger(AiController.class);
 
@@ -51,8 +67,12 @@ public class AiController {
     @Autowired
     private RabbitMQProducer rabbitMQProducer;
 
+    @Autowired
+    private AiToUserConversationService aiToUserConversationService;
+
 
     @PostMapping("/chat")
+    @ApiOperationSupport(order = 1, author = "wj")
     public SseEmitter chat(@RequestBody AiChatRequest aiChatRequest, HttpServletRequest request) {
 
         AtomicReference<UserPojo> userPojoAtomicReference = new AtomicReference<>(null);
@@ -120,5 +140,41 @@ public class AiController {
         
         logger.info("TokenStream 已启动，等待异步响应...");
         return sseEmitter;
+    }
+
+    @GetMapping("/getHistroyConversation")
+    @ApiOperationSupport(order = 2, author = "wj")
+    public R<Page<UserToBotConversation>> getHistroyConversation(HistoryConversationRequest historyConversationRequest, HttpServletRequest request) {
+
+        UserPojo userPojo;
+        try {
+            userPojo = userUtil.getUser(request);
+        } catch (FormWallException e) {
+            logger.info("用户未登录，暂时历史对话消息");
+            return R.ok(new Page<>(1, 10,0));
+        }
+        Page<AiToUserConversationPoJo> page = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize());
+        LambdaQueryWrapper<AiToUserConversationPoJo> qw = new LambdaQueryWrapper<>();
+        qw.eq(AiToUserConversationPoJo::getUserId, userPojo.getId());
+        qw.orderByDesc(AiToUserConversationPoJo::getCreateTime);
+        Page<AiToUserConversationPoJo> pageResult = aiToUserConversationService.page(page, qw);
+        List<AiToUserConversationPoJo> records = pageResult.getRecords();
+
+        Page<UserToBotConversation> userToBotConversationPage = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize(), pageResult.getTotal());
+        if (CollUtil.isNotEmpty(records)){
+            userToBotConversationPage.setRecords(BeanUtil.copyToList(records, UserToBotConversation.class));
+        }
+        return R.ok(userToBotConversationPage);
+    }
+
+    @GetMapping("/searchConversation")
+    @AuthIsLogin
+    @ApiOperationSupport(order = 3, author = "wj")
+    public R<Page<SearchConversationResponse>> searchConversation(SearchConversationRequest searchConversationRequest, HttpServletRequest request) throws FormWallException {
+        UserPojo user = userUtil.getUser(request);
+
+        Page<SearchConversationResponse> responsePage = aiToUserConversationService.searchConversation(searchConversationRequest,user);
+
+        return R.ok(responsePage);
     }
 }

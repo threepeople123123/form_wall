@@ -84,7 +84,7 @@ public class InitTypesense implements CommandLineRunner {
             int vectorDimension = 384; // 根据你的 EmbeddingModel 实际维度修改
                     
             fields.add(new Field()
-                    .name("user_vector")
+                    .name("userVector")
                     .type("float[]")
                     .numDim(vectorDimension)  // 向量维度，必须指定
                     .index(true)  // 向量字段必须可索引
@@ -92,7 +92,7 @@ public class InitTypesense implements CommandLineRunner {
                     
             // bot_vector: AI 回复的向量表示（可选，用于双向检索）
             fields.add(new Field()
-                    .name("bot_vector")
+                    .name("botVector")
                     .type("float[]")
                     .numDim(vectorDimension)
                     .index(true)
@@ -101,24 +101,39 @@ public class InitTypesense implements CommandLineRunner {
             // ==================== 文本内容字段 ====================
             // user_msg: 用户原始问题（用于展示和全文搜索）
             fields.add(new Field()
-                    .name("user_msg")
+                    .name("userMsg")
                     .type("string")
                     .facet(false)
                     .index(true)  // 支持全文搜索
                     .optional(false));  // 必填
+
+            fields.add(new Field()
+                    .name("userMsgSeg")
+                    .type("string")
+                    .facet(false)
+                    .index(true)  // 支持全文搜索
+                    .optional(false));
                     
             // bot_msg: AI 回复内容（用于展示和全文搜索）
             fields.add(new Field()
-                    .name("bot_msg")
+                    .name("botMsg")
                     .type("string")
                     .facet(false)
                     .index(true)
-                    .optional(true));  // 可选
+                    .optional(false));  // 可选
+
+
+            fields.add(new Field()
+                    .name("botMsgSeg")
+                    .type("string")
+                    .facet(false)
+                    .index(true)  // 支持全文搜索
+                    .optional(false));
                     
             // ==================== 过滤与元数据字段 ====================
             // school_id: 学校ID，用于按学校过滤（个性化检索）
             fields.add(new Field()
-                    .name("school_id")
+                    .name("schoolId")
                     .type("int64")
                     .facet(true)  // 支持分面过滤
                     .index(true)
@@ -126,7 +141,7 @@ public class InitTypesense implements CommandLineRunner {
                     
             // user_id: 用户ID，用于追踪来源
             fields.add(new Field()
-                    .name("user_id")
+                    .name("userId")
                     .type("int64")
                     .facet(true)
                     .index(true)
@@ -134,7 +149,7 @@ public class InitTypesense implements CommandLineRunner {
                     
             // conversation_id: 会话ID，用于关联同一对话的多轮记录
             fields.add(new Field()
-                    .name("conversation_id")
+                    .name("conversationId")
                     .type("string")
                     .facet(true)
                     .index(true)
@@ -142,7 +157,7 @@ public class InitTypesense implements CommandLineRunner {
                     
             // create_time: 创建时间（Unix 时间戳，用于排序）
             fields.add(new Field()
-                    .name("create_time")
+                    .name("createTime")
                     .type("int64")
                     .sort(true)  // 支持按时间排序
                     .facet(false)
@@ -153,7 +168,7 @@ public class InitTypesense implements CommandLineRunner {
             collectionSchema
                     .name("source_vector")  // 集合名称
                     .fields(fields)
-                    .defaultSortingField("create_time");  // 默认按时间倒序
+                    .defaultSortingField("createTime");  // 默认按时间倒序
                     
             // 执行创建
             typesenseClient.collections().create(collectionSchema);
