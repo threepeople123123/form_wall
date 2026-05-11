@@ -20,4 +20,14 @@ public class ApiKeyProperties {
     private String qianWenBaseUrl;
 
     private String qwen3_5_plus;
+
+    private Gateway gateway;
+
+    @Data
+    public static class Gateway {
+        private String url;
+
+        private String  litellmMasterKey;
+    }
 }
+

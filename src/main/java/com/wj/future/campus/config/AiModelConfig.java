@@ -32,8 +32,8 @@ public class AiModelConfig {
     @Bean
     public AiStreamService openAiStreamingChatModel() {
         OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
-                .baseUrl(apiKeyProperties.getQianWenBaseUrl())
-                .apiKey(apiKeyProperties.getQianWenApiKey())
+                .baseUrl(apiKeyProperties.getGateway().getUrl())
+                .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
                 .modelName(apiKeyProperties.getQwen3_5_plus()).build();
 
         ChatMemoryProvider chatMemoryProvider = memoryId -> MessageWindowChatMemory.builder()

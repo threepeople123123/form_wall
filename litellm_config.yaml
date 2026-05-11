@@ -1,0 +1,17 @@
+model_list:
+  - model_name: qwen3.5-plus
+    litellm_params:
+      model: openai/qwen3.5-plus
+      api_key: "sk-0363d3e4787e4ab19253e56309e0ff95"
+      api_base: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+
+  - model_name: qwen3.5-122b-a10b
+    litellm_params: 
+      model: anthropic/qwen3.5-122b-a10b
+      api_key: "sk-0363d3e4787e4ab19253e56309e0ff95"
+      # 如果是通过中转接口调用 Claude，同样添加 api_base
+      api_base: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      #
+litellm_settings:
+   success_callback: [ "database" ]
+   drop_params: True
