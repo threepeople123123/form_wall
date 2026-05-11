@@ -29,10 +29,10 @@ public class AiModelConfig {
     private AllTools allTools;
 
 
-    @Bean
+    @Bean("aiStreamService")
     public AiStreamService openAiStreamingChatModel() {
         OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
-                .baseUrl(apiKeyProperties.getQianWenBaseUrl())
+                .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getQianWenApiKey())
                 .modelName(apiKeyProperties.getQwen3_5_plus()).build();
 

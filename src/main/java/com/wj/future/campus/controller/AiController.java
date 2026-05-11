@@ -82,6 +82,10 @@ public class AiController {
         }catch (Exception e){
             logger.error("用户没有登录");
         }
+        // 前置判断，需要那种ai进行对话
+        
+
+
         // 获取用户 ID 或会话 ID 作为 memoryId
         String conversationId = aiChatRequest.getConversationId();
 
