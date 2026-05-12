@@ -26,5 +26,8 @@ public class ApiKeyProperties {
     @Data
     public static class Gateway {
         private String url;
+
+        private String  litellmMasterKey;
     }
 }
+
