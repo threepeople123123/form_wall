@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: langfuse-clickhouse
+
+    restart: unless-stopped
+
+    environment:
+      CLICKHOUSE_DB: langfuse
+      CLICKHOUSE_USER: campus
+      CLICKHOUSE_PASSWORD: "cat.xb.sleep.campus"
+
+    volumes:
+      - ./clickhouse_data:/var/lib/clickhouse
+
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+  langfuse:
+    image: langfuse/langfuse:latest
+    container_name: langfuse
+
+    restart: unless-stopped
+
+    depends_on:
+      - clickhouse
+
+    ports:
+      - "3000:3000"
+
+    env_file:
+      - .env
