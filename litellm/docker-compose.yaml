@@ -13,3 +13,6 @@ services:
       - UI_PASSWORD=password123
     command: [ "--config", "/app/config.yaml", "--detailed_debug" ]
     restart: always
+
+    env_file:
+      - .env
