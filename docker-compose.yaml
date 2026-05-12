@@ -7,7 +7,7 @@ services:
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
     environment:
-      - DATABASE_URL=postgresql://postgres:wangjian020426@8.140.219.233:5432/litellm
+      - DATABASE_URL=postgresql://postgres:wangjian020426@localhost:5432/litellm
       - LITELLM_MASTER_KEY=sk-xb.cat.sleep.campus
       - UI_USERNAME=admin
       - UI_PASSWORD=password123
