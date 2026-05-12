@@ -1,12 +1,10 @@
 package com.wj.future.campus.handler;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.wj.future.campus.campusEnum.RedisEnum;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.store.memory.chat.ChatMemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.asm.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

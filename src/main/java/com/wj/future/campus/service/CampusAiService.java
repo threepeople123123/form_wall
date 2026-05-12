@@ -1,8 +1,6 @@
 package com.wj.future.campus.service;
 
 import com.wj.future.campus.entity.request.AiConversationRequest;
-import dev.langchain4j.service.SystemMessage;
-import dev.langchain4j.service.UserMessage;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;

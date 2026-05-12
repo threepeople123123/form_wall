@@ -22,7 +22,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import org.typesense.api.Client;
 import org.wltea.analyzer.core.IKSegmenter;
 import org.wltea.analyzer.core.Lexeme;
-import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,7 +29,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * RabbitMQ 消息消费者

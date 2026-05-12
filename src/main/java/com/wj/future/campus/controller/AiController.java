@@ -37,14 +37,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.typesense.model.MultiSearchCollectionParameters;
-import org.typesense.model.MultiSearchSearchesParameter;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 
 @RestController
@@ -83,7 +78,7 @@ public class AiController {
             logger.error("用户没有登录");
         }
         // 前置判断，需要那种ai进行对话
-        
+
 
 
         // 获取用户 ID 或会话 ID 作为 memoryId
