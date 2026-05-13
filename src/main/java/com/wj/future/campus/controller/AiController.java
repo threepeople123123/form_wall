@@ -3,6 +3,7 @@ package com.wj.future.campus.controller;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,6 +22,7 @@ import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.service.AiToUserConversationService;
+import com.wj.future.campus.util.MinioUtil;
 import com.wj.future.campus.util.UserUtil;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.PartialThinking;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.List;
@@ -64,6 +67,9 @@ public class AiController {
 
     @Autowired
     private AiToUserConversationService aiToUserConversationService;
+
+    @Autowired
+    private MinioUtil minioUtil;
 
 
     @PostMapping("/chat")
@@ -136,7 +142,7 @@ public class AiController {
                     sseEmitter.completeWithError(error);
                 })
                 .start();
-        
+
         logger.info("TokenStream 已启动，等待异步响应...");
         return sseEmitter;
     }
@@ -175,5 +181,34 @@ public class AiController {
         Page<SearchConversationResponse> responsePage = aiToUserConversationService.searchConversation(searchConversationRequest,user);
 
         return R.ok(responsePage);
+    }
+
+
+    /**
+     * 文档结构化
+     * @param file 文件流
+     * @return 是否成功
+     */
+    @PostMapping("/documentStructuring")
+    @AuthIsLogin
+    @ApiOperationSupport(order = 4, author = "wj")
+    public R<String> documentStructuring(@RequestPart("file")MultipartFile file){
+        // 判断文件格式
+        String fileName = file.getOriginalFilename();
+        if (StrUtil.isBlank(fileName)){
+            return R.failure("请上传文件");
+        }
+        if (!".pdf".endsWith(fileName) && !".doc".endsWith(fileName)) {
+            return R.failure("请上传pdf或者doc格式的文件");
+        }
+        String originalFilename = file.getOriginalFilename();
+        //
+        String objectName = minioUtil.getObjectName(originalFilename);
+        minioUtil.upload(file, objectName);
+
+        //ai解析文档
+
+
+        return R.ok();
     }
 }
