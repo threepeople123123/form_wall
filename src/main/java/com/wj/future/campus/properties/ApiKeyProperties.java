@@ -23,6 +23,8 @@ public class ApiKeyProperties {
 
     private String qwen3_5_omni_plus_2026_03_15;
 
+    private String dashscope_qwen_image_2_0;
+
     private String qianWenBaseUrl;
 
     private String qwen3_5_plus;

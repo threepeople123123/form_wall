@@ -64,7 +64,7 @@ public class AiModelConfig {
         return OpenAiImageModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getGLMImage()).build();
+                .modelName(apiKeyProperties.getDashscope_qwen_image_2_0()).build();
     }
 
 }
