@@ -16,7 +16,7 @@ model_list:
     litellm_params:
       model: openai/GLM-Image
       api_base: https://open.bigmodel.cn/api/paas/v4
-      api_key: your-zhipu-api-key
+      api_key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
 
 general_settings:
   master_key: sk-global-litellm-key

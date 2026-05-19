@@ -95,17 +95,20 @@ knife4j:
   setting:
     language: zh_cn
 ai:
-  qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
-  zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
-  zhi-pu-base-url: https://open.bigmodel.cn/api/paas/v4/
-  tongyi-xiaomi-analysis-pro: tongyi-xiaomi-analysis-pro
-  qwen3_5_122b_a10b: qwen3.5-122b-a10b
-  qwen3_5_omni_plus_2026_03_15: qwen3.5-omni-plus-2026-03-15
-  qian_wen_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
-  qwen3_5_plus: qwen3.5-plus
-  GLM-image: GLM-Image
+  dashscope:
+    qian-wen-api-key: sk-0363d3e4787e4ab19253e56309e0ff95
+    tongyi-xiaomi-analysis-pro: tongyi-xiaomi-analysis-pro
+    qwen3_5_122b_a10b: qwen3.5-122b-a10b
+    qwen3_5_omni_plus_2026_03_15: qwen3.5-omni-plus-2026-03-15
+    qian_wen_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+    qwen3_5_plus: qwen3.5-plus
+    dashscope_qwen_image_2_0: qwen-image-2.0
+  zhi-pu:
+    zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
+    zhi-pu-base-url: https://open.bigmodel.cn/api/paas/v4/
+    GLM-image: GLM-Image
   gateway:
-    url: http://localhost:4000
+    url: http://192.168.48.100:4000
     litellm_master_key: sk-global-litellm-key
 typesense:
   agreement: http
@@ -137,3 +140,6 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+langfuse:
+  username: campus
+  password: sk-xb-cat-sleep-123

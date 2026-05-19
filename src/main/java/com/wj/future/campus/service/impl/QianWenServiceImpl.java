@@ -146,9 +146,9 @@ public class QianWenServiceImpl<T> implements CampusAiService<T> {
 
                 GenerationParam param = GenerationParam.builder()
                         // 若没有配置环境变量，请用阿里云百炼API Key将下行替换为：.apiKey("sk-xxx")
-                        .apiKey(apiKeyProperties.getQianWenApiKey())
+                        .apiKey(apiKeyProperties.getDashscope().getQianWenApiKey())
                         // 模型列表：https://help.aliyun.com/model-studio/getting-started/models
-                        .model(apiKeyProperties.getQwen3_5_plus())
+                        .model(apiKeyProperties.getDashscope().getQwen3_5_122b_a10b())
                         .history(historyList)
                         .messages(messages)
 //                        .tools(toolBaseList)
@@ -228,7 +228,7 @@ public class QianWenServiceImpl<T> implements CampusAiService<T> {
             MultiModalEmbeddingItemText textContent = new MultiModalEmbeddingItemText(msg);
             List<MultiModalEmbeddingItemBase> contents = Arrays.asList(textContent);
 
-            TextEmbeddingParam textEmbeddingParam = TextEmbeddingParam.builder().apiKey(apiKeyProperties.getQianWenApiKey()).text(msg).model(TEXT_EMBEDDING_V3).dimension(1024).build();
+            TextEmbeddingParam textEmbeddingParam = TextEmbeddingParam.builder().apiKey(apiKeyProperties.getDashscope().getQianWenApiKey()).text(msg).model(TEXT_EMBEDDING_V3).dimension(1024).build();
             TextEmbedding textEmbedding = new TextEmbedding();
             TextEmbeddingResult result = textEmbedding.call(textEmbeddingParam);
             return result.getOutput().getEmbeddings().get(0).getEmbedding();

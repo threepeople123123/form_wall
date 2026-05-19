@@ -68,7 +68,7 @@ public class ZhiPuServiceImpl<T> implements CampusAiService<T> {
                         .build();
                 GenerationParam param = GenerationParam.builder()
                         // 若没有配置环境变量，请用阿里云百炼API Key将下行替换为：.apiKey("sk-xxx")
-                        .apiKey(apiKeyProperties.getZhiPuApiKey())
+                        .apiKey(apiKeyProperties.getZhiPu().getZhiPuApiKey())
                         // 模型列表：https://help.aliyun.com/model-studio/getting-started/models
                         .model("qwen-plus")
                         .messages(Arrays.asList(systemMsg, userMsg))

@@ -35,7 +35,7 @@ public class AiModelConfig {
         OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getQwen3_5_122b_a10b()).build();
+                .modelName(apiKeyProperties.getDashscope().getQwen3_5_122b_a10b()).build();
 
         ChatMemoryProvider chatMemoryProvider = memoryId -> MessageWindowChatMemory.builder()
                 .id(memoryId)
@@ -64,7 +64,7 @@ public class AiModelConfig {
         return OpenAiImageModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getDashscope_qwen_image_2_0()).build();
+                .modelName(apiKeyProperties.getDashscope().getDashscope_qwen_image_2_0()).build();
     }
 
 }

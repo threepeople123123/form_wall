@@ -16,12 +16,14 @@ import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
 import com.wj.future.campus.entity.request.HistoryConversationRequest;
 import com.wj.future.campus.entity.request.SearchConversationRequest;
+import com.wj.future.campus.entity.response.HistoryResponse;
 import com.wj.future.campus.entity.response.SearchConversationResponse;
 import com.wj.future.campus.exception.FormWallException;
 import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.service.AiToUserConversationService;
+import com.wj.future.campus.util.GenerationImageUtil;
 import com.wj.future.campus.util.MinioUtil;
 import com.wj.future.campus.util.UserUtil;
 import dev.langchain4j.data.image.Image;
@@ -45,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -76,7 +79,11 @@ public class AiController {
     private MinioUtil minioUtil;
 
     @Autowired
+    private GenerationImageUtil generationImageUtil;
+
+    @Autowired
     private ImageModel imageModel;
+
 
     @PostMapping("/chat")
     @ApiOperationSupport(order = 1, author = "wj")
@@ -153,9 +160,15 @@ public class AiController {
         return sseEmitter;
     }
 
-    @GetMapping("/getHistroyConversation")
+    /**
+     * 获取历史对话消息
+     * @param historyConversationRequest 查询参数
+     * @param request 请求对象
+     * @return 历史消息列表
+     */
+    @GetMapping("/getHistoryConversation")
     @ApiOperationSupport(order = 2, author = "wj")
-    public R<Page<UserToBotConversation>> getHistroyConversation(HistoryConversationRequest historyConversationRequest, HttpServletRequest request) {
+    public R<Page<HistoryResponse>> getHistoryConversation(HistoryConversationRequest historyConversationRequest, HttpServletRequest request) {
 
         UserPojo userPojo;
         try {
@@ -171,9 +184,16 @@ public class AiController {
         Page<AiToUserConversationPoJo> pageResult = aiToUserConversationService.page(page, qw);
         List<AiToUserConversationPoJo> records = pageResult.getRecords();
 
-        Page<UserToBotConversation> userToBotConversationPage = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize(), pageResult.getTotal());
+        Page<HistoryResponse> userToBotConversationPage = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize(), pageResult.getTotal());
         if (CollUtil.isNotEmpty(records)){
-            userToBotConversationPage.setRecords(BeanUtil.copyToList(records, UserToBotConversation.class));
+            List<HistoryResponse> historyResponses = new ArrayList<>();
+            for (AiToUserConversationPoJo record : records) {
+                HistoryResponse historyResponse = new HistoryResponse();
+                historyResponse.setTitle(record.getUser());
+                historyResponse.setConversationId(record.getConversationId());
+                historyResponses.add(historyResponse);
+            }
+            userToBotConversationPage.setRecords(historyResponses);
         }
         return R.ok(userToBotConversationPage);
     }
@@ -217,12 +237,30 @@ public class AiController {
 
         return R.ok();
     }
-    /// 生成图片
+    /// 生成图片（使用 LangChain4j）
     @PostMapping("/generateImage")
     @AuthIsLogin
     public R<String> generateImage(@RequestBody AiChatRequest aiChatRequest){
         String msg = aiChatRequest.getMsg();
         Response<Image> generate = imageModel.generate(msg);
         return R.ok(generate.content().base64Data());
+    }
+
+    /// 生成图片（使用阿里云通义万相）
+    @PostMapping("/generateImageWithAliyun")
+    @ApiOperationSupport(order = 5, author = "wj")
+    public R<String> generateImageWithAliyun(@RequestBody AiChatRequest aiChatRequest){
+        try {
+            String msg = aiChatRequest.getMsg();
+            if (StrUtil.isBlank(msg)) {
+                return R.failure("请输入图片描述");
+            }
+            // 调用阿里云通义万相生成图片
+            String imageUrl = generationImageUtil.generationImage(msg);
+            return R.ok(imageUrl);
+        } catch (Exception e) {
+            logger.error("生成图片失败", e);
+            return R.failure("生成图片失败: " + e.getMessage());
+        }
     }
 }
