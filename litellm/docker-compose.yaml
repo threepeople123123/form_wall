@@ -1,18 +1,35 @@
+version: "3.9"
+
 services:
+
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
-    container_name: litellm-proxy
+    container_name: litellm
+
+    restart: unless-stopped
+
     ports:
       - "4000:4000"
-    volumes:
-      - ./litellm_config.yaml:/app/config.yaml
+
     environment:
-      - DATABASE_URL=postgresql://postgres:wangjian020426@localhost:5432/litellm
-      - LITELLM_MASTER_KEY=sk-xb.cat.sleep.campus
-      - UI_USERNAME=admin
-      - UI_PASSWORD=password123
-    command: [ "--config", "/app/config.yaml", "--detailed_debug" ]
-    restart: always
+
+      # ===== PostgreSQL =====
+      DATABASE_URL: postgresql://postgres:wangjian020426@8.140.219.233:5432/litellm
+
+      # ===== LiteLLM UI/Admin =====
+      LITELLM_MASTER_KEY: sk-xb-cat-campus
+
+
+      # ===== DashScope =====
+      OPENAI_API_BASE: https://dashscope.aliyuncs.com/compatible-mode/v1
+      OPENAI_API_KEY: sk-0363d3e4787e4ab19253e56309e0ff95
+
+    volumes:
+      - ./config.yaml:/app/config.yaml
+
+    command:
+      - "--config"
+      - "/app/config.yaml"
 
     env_file:
       - .env
