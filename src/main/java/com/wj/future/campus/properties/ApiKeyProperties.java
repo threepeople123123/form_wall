@@ -13,9 +13,15 @@ public class ApiKeyProperties {
 
     private String zhiPuApiKey;
 
+    private String zhiPuBaseUrl;
+
     private String tongyiXiaomiAnalysisPro;
 
+    private String GLMImage;
+
     private String qwen3_5_122b_a10b;
+
+    private String qwen3_5_omni_plus_2026_03_15;
 
     private String qianWenBaseUrl;
 

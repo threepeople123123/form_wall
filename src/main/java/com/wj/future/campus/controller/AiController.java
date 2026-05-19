@@ -24,8 +24,11 @@ import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.service.AiToUserConversationService;
 import com.wj.future.campus.util.MinioUtil;
 import com.wj.future.campus.util.UserUtil;
+import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.chat.response.PartialThinking;
+import dev.langchain4j.model.image.ImageModel;
+import dev.langchain4j.model.output.Response;
 import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.tool.BeforeToolExecution;
@@ -40,6 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -71,6 +75,8 @@ public class AiController {
     @Autowired
     private MinioUtil minioUtil;
 
+    @Autowired
+    private ImageModel imageModel;
 
     @PostMapping("/chat")
     @ApiOperationSupport(order = 1, author = "wj")
@@ -210,5 +216,13 @@ public class AiController {
 
 
         return R.ok();
+    }
+    /// 生成图片
+    @PostMapping("/generateImage")
+    @AuthIsLogin
+    public R<String> generateImage(@RequestBody AiChatRequest aiChatRequest){
+        String msg = aiChatRequest.getMsg();
+        Response<Image> generate = imageModel.generate(msg);
+        return R.ok(generate.content().base64Data());
     }
 }

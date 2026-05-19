@@ -37,7 +37,7 @@ public class MinioUtil {
         if (originalFilename != null && originalFilename.contains(".")) {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/ddHHmmss"));
         return "files/" + timestamp + "_" + IdUtil.getSnowflakeNextId() + extension;
     }
 

@@ -7,6 +7,7 @@ import com.wj.future.campus.rag.TypesenseVectorContentRetriever;
 import com.wj.future.campus.service.AiStreamService;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.model.openai.OpenAiImageModel;
 import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ public class AiModelConfig {
         OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getQwen3_5_plus()).build();
+                .modelName(apiKeyProperties.getQwen3_5_122b_a10b()).build();
 
         ChatMemoryProvider chatMemoryProvider = memoryId -> MessageWindowChatMemory.builder()
                 .id(memoryId)
@@ -56,6 +57,14 @@ public class AiModelConfig {
                         4. 不要编造不存在的文章内容
                         """)
                 .build();
+    }
+
+    @Bean
+    public OpenAiImageModel openAiImageModel() {
+        return OpenAiImageModel.builder()
+                .baseUrl(apiKeyProperties.getGateway().getUrl())
+                .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
+                .modelName(apiKeyProperties.getGLMImage()).build();
     }
 
 }
