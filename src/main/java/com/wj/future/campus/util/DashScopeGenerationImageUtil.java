@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class GenerationImageUtil {
+public class DashScopeGenerationImageUtil {
     public static final String IMAGE_URL = "https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation";
 
     @Autowired
@@ -27,7 +27,7 @@ public class GenerationImageUtil {
      * @return 生成的图片URL或相关信息
      */
     public String generationImage(String prompt) {
-        return generationImage(prompt, "1120*1440", false);
+        return generationImage(prompt, "2048*2048", false);
     }
 
     /**
@@ -41,7 +41,7 @@ public class GenerationImageUtil {
         try {
             // 构建请求体
             Map<String, Object> requestBody = new HashMap<>();
-            
+
             // model 设置
             requestBody.put("model", apiKeyProperties.getDashscope().getDashscope_qwen_image_2_0());
             
@@ -128,7 +128,7 @@ public class GenerationImageUtil {
                 log.error("图片生成失败，状态码: {}, 响应: {}", response.getStatus(), response.body());
                 throw new RuntimeException("图片生成失败: " + response.body());
             }
-            
+
         } catch (Exception e) {
             log.error("调用图片生成API异常", e);
             throw new RuntimeException("调用图片生成API异常: " + e.getMessage(), e);

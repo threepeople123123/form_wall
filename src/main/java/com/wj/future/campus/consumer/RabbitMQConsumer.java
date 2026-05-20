@@ -2,18 +2,26 @@ package com.wj.future.campus.consumer;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.rabbitmq.client.Channel;
 import com.wj.future.campus.config.RabbitMQConfig;
 import com.wj.future.campus.entity.pojo.nosql.SourceVectorIndex;
 import com.wj.future.campus.entity.pojo.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationHistoryPojo;
 import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationPoJo;
+import com.wj.future.campus.mapper.AiToUserConversationHistoryMapper;
+import com.wj.future.campus.service.AiSimplifyModelService;
+import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.service.AiToUserConversationService;
 import com.wj.future.campus.util.EmbeddingUtil;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -25,6 +33,7 @@ import org.wltea.analyzer.core.Lexeme;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +58,11 @@ public class RabbitMQConsumer {
     @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @Autowired
+    private AiToUserConversationHistoryMapper aiToUserConversationHistoryMapper;
+
+    @Autowired
+    private AiSimplifyModelService aiSimplifyModelService;
     /**
      * 监听示例队列
      *
@@ -71,6 +85,29 @@ public class RabbitMQConsumer {
                 aiToUserConversationPoJo.setId(IdUtil.getSnowflakeNextId());
                 aiToUserConversationPoJo.setCreateTime(LocalDateTime.now());
                 boolean save = aiToUserConversationService.save(aiToUserConversationPoJo);
+
+                LambdaQueryWrapper<AiToUserConversationHistoryPojo> qw = new LambdaQueryWrapper<>();
+                qw.eq(AiToUserConversationHistoryPojo::getConversationId,aiToUserConversationPoJo.getConversationId());
+                qw.last("limit 1");
+                AiToUserConversationHistoryPojo aiToUserConversationHistoryPojo = aiToUserConversationHistoryMapper.selectOne(qw);
+                if (ObjectUtil.isEmpty(aiToUserConversationHistoryPojo)){
+
+                    String title = userToBotConversation.getBot();
+
+                    if (userToBotConversation.getBot().length() > 15){
+                        title = aiSimplifyModelService.chat(userToBotConversation.getUser());
+                    }
+
+                    AiToUserConversationHistoryPojo aiToUserConversationHistoryPoJo = new AiToUserConversationHistoryPojo();
+                    aiToUserConversationHistoryPoJo.setTitle(title);
+                    aiToUserConversationHistoryPoJo.setUserId(userToBotConversation.getUserId());
+                    aiToUserConversationHistoryPoJo.setId(IdUtil.getSnowflakeNextId());
+                    aiToUserConversationHistoryPoJo.setConversationId(userToBotConversation.getConversationId());
+                    aiToUserConversationHistoryPoJo.setCreateTime(new Timestamp(System.currentTimeMillis()));
+                    aiToUserConversationHistoryMapper.insert(aiToUserConversationHistoryPoJo);
+                }
+
+
 
                 // 将用户消息和ai回复向量化存储起来
                 List<Double> userVector = embeddingUtil.embedToVector(userToBotConversation.getUser());

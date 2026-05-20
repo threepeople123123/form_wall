@@ -11,19 +11,22 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import com.wj.future.campus.checkLogin.AuthIsLogin;
 import com.wj.future.campus.entity.pojo.nosql.UserToBotConversation;
+import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationHistoryPojo;
 import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationPoJo;
 import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.entity.request.AiChatRequest;
 import com.wj.future.campus.entity.request.HistoryConversationRequest;
 import com.wj.future.campus.entity.request.SearchConversationRequest;
+import com.wj.future.campus.entity.response.ConversationMessageResponse;
 import com.wj.future.campus.entity.response.HistoryResponse;
 import com.wj.future.campus.entity.response.SearchConversationResponse;
 import com.wj.future.campus.exception.FormWallException;
+import com.wj.future.campus.mapper.AiToUserConversationHistoryMapper;
 import com.wj.future.campus.producer.RabbitMQProducer;
 import com.wj.future.campus.result.R;
 import com.wj.future.campus.service.AiStreamService;
 import com.wj.future.campus.service.AiToUserConversationService;
-import com.wj.future.campus.util.GenerationImageUtil;
+import com.wj.future.campus.util.DashScopeGenerationImageUtil;
 import com.wj.future.campus.util.MinioUtil;
 import com.wj.future.campus.util.UserUtil;
 import dev.langchain4j.data.image.Image;
@@ -37,6 +40,7 @@ import dev.langchain4j.service.tool.BeforeToolExecution;
 import dev.langchain4j.service.tool.ToolExecution;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.lucene.search.spans.SpanMultiTermQueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +54,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -79,10 +84,13 @@ public class AiController {
     private MinioUtil minioUtil;
 
     @Autowired
-    private GenerationImageUtil generationImageUtil;
+    private DashScopeGenerationImageUtil generationImageUtil;
 
     @Autowired
     private ImageModel imageModel;
+
+    @Autowired
+    private AiToUserConversationHistoryMapper aiToUserConversationHistoryMapper;
 
 
     @PostMapping("/chat")
@@ -177,25 +185,25 @@ public class AiController {
             logger.info("用户未登录，暂时历史对话消息");
             return R.ok(new Page<>(1, 10,0));
         }
-        Page<AiToUserConversationPoJo> page = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize());
-        LambdaQueryWrapper<AiToUserConversationPoJo> qw = new LambdaQueryWrapper<>();
-        qw.eq(AiToUserConversationPoJo::getUserId, userPojo.getId());
-        qw.orderByDesc(AiToUserConversationPoJo::getCreateTime);
-        Page<AiToUserConversationPoJo> pageResult = aiToUserConversationService.page(page, qw);
-        List<AiToUserConversationPoJo> records = pageResult.getRecords();
+        LambdaQueryWrapper<AiToUserConversationHistoryPojo> qw = new LambdaQueryWrapper<>();
+        qw.eq(AiToUserConversationHistoryPojo::getUserId,userPojo.getId());
+        qw.orderByDesc(AiToUserConversationHistoryPojo::getCreateTime);
+        Page<AiToUserConversationHistoryPojo> page = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize());
+        Page<AiToUserConversationHistoryPojo> aiToUserConversationHistoryPojoPage = aiToUserConversationHistoryMapper.selectPage(page, qw);
 
-        Page<HistoryResponse> userToBotConversationPage = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize(), pageResult.getTotal());
+        Page<HistoryResponse> historyResponsePage = new Page<>(historyConversationRequest.getPageNum(), historyConversationRequest.getPageSize(), aiToUserConversationHistoryPojoPage.getTotal());
+
+        List<AiToUserConversationHistoryPojo> records = aiToUserConversationHistoryPojoPage.getRecords();
+
         if (CollUtil.isNotEmpty(records)){
-            List<HistoryResponse> historyResponses = new ArrayList<>();
-            for (AiToUserConversationPoJo record : records) {
-                HistoryResponse historyResponse = new HistoryResponse();
-                historyResponse.setTitle(record.getUser());
-                historyResponse.setConversationId(record.getConversationId());
-                historyResponses.add(historyResponse);
-            }
-            userToBotConversationPage.setRecords(historyResponses);
+
+            List<HistoryResponse> historyResponses = records.stream().map(historyResponse ->
+                    new HistoryResponse(historyResponse.getTitle(), historyResponse.getConversationId())
+            ).collect(Collectors.toList());
+
+            historyResponsePage.setRecords(historyResponses);
         }
-        return R.ok(userToBotConversationPage);
+        return R.ok(historyResponsePage);
     }
 
     @GetMapping("/searchConversation")
@@ -207,6 +215,41 @@ public class AiController {
         Page<SearchConversationResponse> responsePage = aiToUserConversationService.searchConversation(searchConversationRequest,user);
 
         return R.ok(responsePage);
+    }
+
+    ///  获取对话列表
+    @GetMapping("/getConversationMessage")
+    @AuthIsLogin
+    public R<Page<ConversationMessageResponse>> getConversationMessage(@RequestParam String conversationId, @RequestParam int pageNum, @RequestParam int pageSize){
+        Page<AiToUserConversationPoJo> page = new Page<>(pageNum, pageSize);
+
+        LambdaQueryWrapper<AiToUserConversationPoJo> qw = new LambdaQueryWrapper<>();
+        qw.eq(AiToUserConversationPoJo::getConversationId,conversationId);
+        Page<AiToUserConversationPoJo> pageResult = aiToUserConversationService.page(page, qw);
+
+        Page<ConversationMessageResponse> userToBotConversationPage = new Page<>(pageNum, pageSize, pageResult.getTotal());
+        if (CollUtil.isNotEmpty(pageResult.getRecords())){
+            List<AiToUserConversationPoJo> records = pageResult.getRecords();
+            List<ConversationMessageResponse> conversationMessageResponses = new ArrayList<>();
+            for (AiToUserConversationPoJo record : records) {
+
+                ConversationMessageResponse user = new ConversationMessageResponse();
+                user.setRole("user");
+                user.setContent(record.getUser());
+                conversationMessageResponses.add(user);
+
+                ConversationMessageResponse bot = new ConversationMessageResponse();
+                bot.setRole("ai");
+                bot.setContent(record.getBot());
+                conversationMessageResponses.add(bot);
+
+
+            }
+
+
+            userToBotConversationPage.setRecords(conversationMessageResponses);
+        }
+        return R.ok(userToBotConversationPage);
     }
 
 

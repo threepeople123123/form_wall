@@ -140,10 +140,10 @@ public class LoginController {
         qw.last("limit 1");
         UserPojo userPojo = userService.getOne(qw);
         if (ObjectUtil.isNotEmpty(userPojo)){
-            if (userPojo.getEmail().equals(email)){
+            if (email.equals(userPojo.getEmail())){
                 throw new FormWallException("邮箱已存在");
             }
-            if (userPojo.getName().equals(userName)){
+            if (userName.equals(userPojo.getName())){
                 throw new FormWallException("用户名已存在");
             }
         }

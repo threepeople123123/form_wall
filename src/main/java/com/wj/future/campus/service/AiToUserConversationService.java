@@ -1,5 +1,6 @@
 package com.wj.future.campus.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.wj.future.campus.entity.pojo.rdb.AiToUserConversationPoJo;
@@ -17,4 +18,5 @@ public interface AiToUserConversationService  extends IService<AiToUserConversat
      * @return 对话列表
      */
     Page<SearchConversationResponse> searchConversation(SearchConversationRequest searchConversationRequest, UserPojo user) throws FormWallException;
+
 }
