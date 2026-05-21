@@ -1,5 +1,6 @@
 package com.wj.future.campus.rag;
 
+import cn.hutool.core.collection.CollUtil;
 import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.util.EmbeddingUtil;
 import dev.langchain4j.rag.content.Content;
@@ -81,7 +82,7 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
 
             log.info("TypeSense 搜索完成，命中共 {} 条记录", result.getHits().size());
 
-            return result.getHits().stream()
+            List<String> botMsgList  = result.getHits().stream()
                     .map(hit -> {
                         Map<String, Object> document = hit.getDocument();
                         // 这里假设你的文本字段名为 "content"，请根据实际 Schema 修改
@@ -91,9 +92,22 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
                         Map<String, String> metadata = new HashMap<>();
                         document.forEach((k, v) -> metadata.put(k, String.valueOf(v)));
 
-                        return Content.from(text);
+                        return text;
                     })
                     .collect(Collectors.toList());
+
+            List<Content> contentList = botMsgList.stream()
+                    .map(Content::from)
+                    .collect(Collectors.toList());
+            // todo:发送给rerank模型进行重排
+            if (CollUtil.isNotEmpty(botMsgList)){
+
+                for (String s : botMsgList) {
+                    Content.from(s);
+                }
+            }
+
+            return contentList;
 
         } catch (Exception e) {
             log.error("Typesense 搜索发生异常: {}", e.getMessage(), e);

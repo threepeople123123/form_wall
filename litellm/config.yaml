@@ -18,6 +18,11 @@ model_list:
       api_base: https://open.bigmodel.cn/api/paas/v4
       api_key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
 
+  - model_name: qwen3-reranker-0.6b
+      litellm_params:
+        model: cohere/qwen3-reranker:0.6B
+        api_base: http://127.0.0.1:12435/v1
+        api_key: "not-needed"
 general_settings:
   master_key: sk-global-litellm-key
   store_model_in_db: true
