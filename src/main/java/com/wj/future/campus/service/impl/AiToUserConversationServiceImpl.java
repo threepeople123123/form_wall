@@ -41,30 +41,15 @@ public class AiToUserConversationServiceImpl extends ServiceImpl<AiToUserConvers
     public Page<SearchConversationResponse> searchConversation(SearchConversationRequest searchConversationRequest, UserPojo user) throws FormWallException {
         String collectionName = "source_vector";
 
-        // 1. 构建过滤条件 (Filter By)
-        // conversationId 必须完全匹配，userId 也必须完全匹配（确保数据隔离）
-//        StringBuilder filterBuilder = new StringBuilder();
-
-//        filterBuilder.append("userId:=").append(user.getId());
-
-        // 2. 构建搜索关键词 (Query)
+        //  构建搜索关键词 (Query)
         // 如果有关键词，我们在 userMsg 和 botMsg 中进行搜索
         String queryKeyword = searchConversationRequest.getQuery() != null ? searchConversationRequest.getQuery() : "*";
 
         MultiSearchCollectionParameters parameters = new MultiSearchCollectionParameters();
         parameters.setQ("*");
-//        parameters.setQueryBy("botMsg");
-//        parameters.setFilterBy(filterBuilder.toString());
-
-        // 分组设置：按 conversationId 分组，每组只取最新的一条
-//        parameters.setGroupBy("conversationId");
-//        parameters.setGroupLimit(1);
-//        parameters.setSortBy("createTime:desc");
 
         // 分页设置
-        parameters.setPerPage(10);
-//        parameters.setPage(searchConversationRequest.getPageSize());
-        parameters.setCollection(collectionName);
+        parameters.setPerPage(10);parameters.setCollection(collectionName);
 
         MultiSearchSearchesParameter searchParameters = new MultiSearchSearchesParameter();
         searchParameters.setSearches(List.of(parameters));
