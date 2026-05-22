@@ -3,15 +3,18 @@ package com.wj.future.campus.rag;
 import cn.hutool.core.collection.CollUtil;
 import com.wj.future.campus.entity.pojo.rdb.UserPojo;
 import com.wj.future.campus.util.EmbeddingUtil;
+import com.wj.future.campus.util.RerankUtil;
 import dev.langchain4j.rag.content.Content;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.query.Query;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Component;
 import org.typesense.api.Client;
 import org.typesense.model.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,8 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
     @Autowired
     private EmbeddingUtil embedToVector;
 
+    @Autowired
+    private RerankUtil rerankUtil;
 
 
     @Override
@@ -61,7 +66,7 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
         parameters.setQ("*"); // 必须设置 q，使用 * 表示匹配所有记录，由向量搜索负责重排
         parameters.setVectorQuery(vectorQuery);
         parameters.setCollection(collectionName);
-        parameters.setPerPage(10); // 返回条数
+        parameters.setPerPage(8); // 返回条数
 
         MultiSearchSearchesParameter searchParameters = new MultiSearchSearchesParameter();
         searchParameters.setSearches(List.of(parameters));
@@ -96,18 +101,14 @@ public class TypesenseVectorContentRetriever implements ContentRetriever {
                     })
                     .collect(Collectors.toList());
 
-            List<Content> contentList = botMsgList.stream()
-                    .map(Content::from)
-                    .collect(Collectors.toList());
             // todo:发送给rerank模型进行重排
+            botMsgList = rerankUtil.rerank(query.text(),botMsgList,3);
             if (CollUtil.isNotEmpty(botMsgList)){
 
-                for (String s : botMsgList) {
-                    Content.from(s);
-                }
+                return botMsgList.stream().map(Content::from).collect(Collectors.toList());
             }
 
-            return contentList;
+            return new ArrayList<>();
 
         } catch (Exception e) {
             log.error("Typesense 搜索发生异常: {}", e.getMessage(), e);
