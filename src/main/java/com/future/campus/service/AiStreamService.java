@@ -18,5 +18,5 @@ public interface AiStreamService {
             
             Read the question again: {{userMessage}}
             """)
-    TokenStream chat(@MemoryId String memoryId, @V("userQuery") String userMessage);
+    TokenStream chat(@MemoryId String memoryId, @V("userMessage") String userMessage);
 }

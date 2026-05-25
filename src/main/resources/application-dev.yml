@@ -103,12 +103,14 @@ ai:
     qian_wen_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
     qwen3_5_plus: qwen3.5-plus
     dashscope_qwen_image_2_0: qwen-image-2.0
+    deepseek-v4-flash: deepseek-v4-flash
+    qwen3_6_flash_2026_04_16: qwen3.6-flash-2026-04-16
   zhi-pu:
     zhi-pu-api-key: 4326f6d62899f7262aca39ef10a0aebd.WqS1NPb82t5ylEjD
     zhi-pu-base-url: https://open.bigmodel.cn/api/paas/v4/
     GLM-image: GLM-Image
   gateway:
-    url: http://192.168.48.100:4000
+    url: http://localhost:4000
     litellm_master_key: sk-global-litellm-key
 typesense:
   agreement: http
@@ -143,3 +145,6 @@ management:
 langfuse:
   username: campus
   password: sk-xb-cat-sleep-123
+mcp:
+  amap:
+    api-key-url: https://mcp.amap.com/sse?key=3c6e116912fe38c987139ef48caec428

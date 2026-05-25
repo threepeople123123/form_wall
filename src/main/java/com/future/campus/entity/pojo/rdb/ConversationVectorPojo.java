@@ -10,7 +10,7 @@ import lombok.Data;
 public class ConversationVectorPojo {
     @Schema(description = "主键")
     @TableId(value= "id",type = IdType.ASSIGN_ID)
-    private long id;
+    private Long id;
 
     @TableField(value = "user_vector",typeHandler = VectorTypeHandler.class)
     @Schema(description = "用户向量" )

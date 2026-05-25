@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class CommentArticlePojo {
     @Schema(description = "主键")
     @TableId(type = IdType.ASSIGN_ID)
-    private long id;
+    private Long id;
 
     @Schema(description = "文章id")
     @TableField("article_id")

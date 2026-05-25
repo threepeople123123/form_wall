@@ -43,6 +43,10 @@ public class ApiKeyProperties {
         private String tongyiXiaomiAnalysisPro;
 
         private String qianWenBaseUrl;
+
+        private String deepseekV4Flash;
+
+        private String qwen3_6_flash_2026_04_16;
     }
 
     /**

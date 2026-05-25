@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Duration;
+
 @Configuration
 public class AiModelConfig {
 
@@ -42,7 +44,8 @@ public class AiModelConfig {
         OpenAiStreamingChatModel openAiStreamingChatModel = OpenAiStreamingChatModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getDashscope().getQwen3_5_122b_a10b()).build();
+                .timeout(Duration.ZERO)
+                .modelName(apiKeyProperties.getDashscope().getQwen3_6_flash_2026_04_16()).build();
 
         ChatMemoryProvider chatMemoryProvider = memoryId -> MessageWindowChatMemory.builder()
                 .id(memoryId)
@@ -88,7 +91,7 @@ public class AiModelConfig {
         OpenAiChatModel openAiChatModel = OpenAiChatModel.builder()
                 .baseUrl(apiKeyProperties.getGateway().getUrl())
                 .apiKey(apiKeyProperties.getGateway().getLitellmMasterKey())
-                .modelName(apiKeyProperties.getDashscope().getQwen3_5_122b_a10b()).build();
+                .modelName(apiKeyProperties.getDashscope().getQwen3_6_flash_2026_04_16()).build();
 
 
         return AiServices.builder(AiSimplifyModelService.class)

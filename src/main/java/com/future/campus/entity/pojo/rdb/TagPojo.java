@@ -19,7 +19,7 @@ import lombok.Data;
 public class TagPojo {
     @TableField("id")
     @Schema(description = "标签id")
-    private String id;
+    private Long id;
 
     @TableField("tag_name")
     @Schema(description = "标签名称")

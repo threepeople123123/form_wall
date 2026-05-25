@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @TableName("file")
 public class FilePojo {
     @TableId("id")
-    private long id;
+    private Long id;
 
     @TableField("correlation_id")
     private String correlationId;
