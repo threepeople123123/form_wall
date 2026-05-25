@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Properties;
 
 @Configuration
-@MapperScan("com.wj.future.campus.mapper") // 替换为你的 mapper 包路径
+@MapperScan("com.future.campus.mapper") // 替换为你的 mapper 包路径
 public class MybatisPlusConfig {
 
     @Bean

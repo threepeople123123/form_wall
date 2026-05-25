@@ -1,20 +1,26 @@
 package com.future.campus.mcp;
 
+import com.future.campus.properties.McpProperties;
 import dev.langchain4j.mcp.client.DefaultMcpClient;
 import dev.langchain4j.mcp.client.McpClient;
 import dev.langchain4j.mcp.client.logging.DefaultMcpLogMessageHandler;
 import dev.langchain4j.mcp.client.transport.McpTransport;
 import dev.langchain4j.mcp.client.transport.http.HttpMcpTransport;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CampusAmapMcp implements CampusMcpClient{
+
+    @Autowired
+    private McpProperties mcpProperties;
+
     @Override
     public McpClient getMcpClient() {
         McpTransport transport = new HttpMcpTransport.Builder()
-                .sseUrl("https://mcp.amap.com/sse?key=3c6e116912fe38c987139ef48caec428")
-                .logRequests(true) // 打印请求
-                .logResponses(true) // 打印响应
+                .sseUrl(mcpProperties.getAmap().getApiKeyUrl())
+                .logRequests(true)
+                .logResponses(true)
                 .build();
 
         return new DefaultMcpClient.Builder()
