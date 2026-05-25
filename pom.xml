@@ -8,7 +8,7 @@
         <version>3.2.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.wj</groupId>
+    <groupId>com.campus</groupId>
     <artifactId>future-campus</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>future-campus</name>
@@ -78,7 +78,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-
         </dependency>
 
 
@@ -200,6 +199,13 @@
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j</artifactId>
             <version>1.13.1</version>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/dev.langchain4j/langchain4j-mcp -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-mcp</artifactId>
+            <version>1.0.0-beta5</version>
         </dependency>
 
         <!-- LangChain4j Spring Boot Starter -->
