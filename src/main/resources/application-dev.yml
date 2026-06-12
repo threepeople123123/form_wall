@@ -1,4 +1,19 @@
 spring:
+  ai:
+    dashscope:
+      # 需要替换为你自己的 key
+      api-key: sk-0363d3e4787e4ab19253e56309e0ff95
+      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      chat:
+        options:
+          model: deepseek-v4-flash
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: gemma3:1b
+    chat:
+      client:
+        enabled: false
   data:
     # redis配置
     redis:
@@ -130,6 +145,12 @@ logging:
     com.wj.future.campus.mapper: debug
     # LangChain4j 日志 - 用于调试工具调用
     dev.langchain4j: DEBUG
+    org:
+      springframework:
+        ai:
+          chat:
+            client:
+              advisor: DEBUG
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl

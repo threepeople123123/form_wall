@@ -24,7 +24,7 @@ import com.future.campus.result.R;
 import com.future.campus.service.ArticleService;
 import com.future.campus.service.FileService;
 import com.future.campus.util.UserUtil;
-import dev.langchain4j.agent.tool.Tool;
+//import dev.langchain4j.agent.tool.Tool;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -174,7 +174,7 @@ public class ArticleController {
      * @exception FormWallException 异常
      */
     @PostMapping("/pageList")
-    @Tool("根据学校名称，学校id，查询范围，标题，内容，标签，页码，每页数量进行查询")
+//    @Tool("根据学校名称，学校id，查询范围，标题，内容，标签，页码，每页数量进行查询")
     public R<Page<ArticleResponse>> pageList(@RequestBody ArticleRequest articleRequest) throws FormWallException {
         int viewRange = articleRequest.getViewRange();
         String schoolId = articleRequest.getSchoolId();
