@@ -1,8 +1,12 @@
 package com.future.campus.controller.springAi;
 
+import cn.hutool.core.lang.generator.ObjectGenerator;
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
+import com.future.campus.chunk.MyJsonReader;
 import com.future.campus.memory.RedisMemory;
 import com.future.campus.rag.QAdrant;
+import jakarta.annotation.Resource;
+import org.jboss.marshalling.ObjectTable;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -18,8 +22,10 @@ import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.Ordered;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,13 +39,22 @@ import java.util.Map;
 public class SpringAiController {
     private final ChatClient chatClient;
 
-    public SpringAiController( @Qualifier("dashscopeChatModel") ChatModel dashscopeChatModel) {
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private MyJsonReader myJsonReader;
+
+    public SpringAiController(@Qualifier("dashScopeChatModel") ChatModel dashscopeChatModel, RedisTemplate<String, Object> redisTemplate,MyJsonReader myJsonReader) {
+
+        this.redisTemplate =redisTemplate;
+        this.myJsonReader = myJsonReader;
+
         MessageWindowChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(new InMemoryChatMemoryRepository())
                 .maxMessages(20)
                 .build();
 
-        RedisMemory redisMemory = new RedisMemory();
+
+        RedisMemory redisMemory = new RedisMemory(redisTemplate);
 
         // 动态生成系统角色
         SystemPromptTemplate systemMessageTemplate = new SystemPromptTemplate("你是一个精通{role}的专家。");
@@ -71,7 +86,7 @@ public class SpringAiController {
 //                QuestionAnswerAdvisor.builder(vectorStore).build()
         )
 
-                .defaultAdvisors(new RedisMemory())
+                .defaultAdvisors(new RedisMemory(redisTemplate))
                 .build();
     }
 
@@ -79,14 +94,18 @@ public class SpringAiController {
     public String generation(String conversationId,String userInput) {
         SimpleLoggerAdvisor customLogger = new SimpleLoggerAdvisor(
                 request -> "Custom request: " + request.context(),
-                response -> "Custom response: " + response.getResult(),10
+                response -> "Custom response: " + response.getResult(),Integer.MIN_VALUE
         );
+
+        myJsonReader.loadBasicJsonDocuments();
+
 
         return  this.chatClient
                 .prompt()
-                .system(sp->sp.param("skill","擅长高并发，高可用，精通微服务，理解各种项目不同的解决方向"))
+                .system(sp -> sp.param("skill", "擅长高并发，高可用，精通微服务，理解各种项目不同的解决方向"))
                 .advisors(customLogger)
-                .advisors(item->item.param(ChatMemory.CONVERSATION_ID,conversationId))
+                .advisors(item -> item.param(ChatMemory.CONVERSATION_ID, conversationId))
+                .advisors(new RedisMemory(redisTemplate))
                 .advisors()
                 .user(userInput)
                 .call()

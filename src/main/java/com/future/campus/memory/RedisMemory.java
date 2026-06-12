@@ -10,21 +10,24 @@ import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.springframework.ai.chat.messages.MessageType.TOOL;
 
 @Component
 public class RedisMemory implements ChatMemory, StreamAdvisor {
 
-    @Resource
+
     private RedisTemplate<String,Object> redisTemplate;
+
+    public RedisMemory(RedisTemplate redisTemplate){
+        this.redisTemplate = redisTemplate;
+    }
 
     public static final int MEMORY_SIZE = 20;
 
@@ -34,7 +37,6 @@ public class RedisMemory implements ChatMemory, StreamAdvisor {
             for (Message message : messages) {
                 if (MessageType.TOOL.equals(message.getMessageType())) {
                     String text = message.getText();
-
 
                 }
             }
@@ -46,8 +48,11 @@ public class RedisMemory implements ChatMemory, StreamAdvisor {
     @Override
     public List<Message> get(String conversationId) {
 
-        return (List<Message>)redisTemplate.opsForValue().get(RedisEnum.USER_BOT_TO_CONVERSATION.getKey() + conversationId);
+        Object result = redisTemplate.opsForValue().get(RedisEnum.USER_BOT_TO_CONVERSATION.getKey() + conversationId);
+        if (result instanceof List<?>){
 
+        }
+        return new ArrayList<>();
     }
 
     @Override
